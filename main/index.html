@@ -11,7 +11,7 @@
     <div id="main">
         <div class="border">
             <div id="game-menu">
-                <div class="menu-button">
+                <div class="menu-button" id="create-world">
                     <span>Create World</span>
                 </div>
                 <div class="menu-button">
@@ -68,9 +68,46 @@
         <div id="log"></div>
         <div id="command">
             <input type="text" id="command-line">
-            <button value="Run">Run</button>
+            <button id="run-button" value="Run">Run</button>
         </div>
     </div>
+
+
+    <script>
+        var terminal = document.getElementById("log");
+        var command = document.getElementById("command-line");
+        var runButton = document.getElementById("run-button");
+
+        var createWorldButton = document.getElementById("create-world");
+        createWorldButton.onclick = (() => {
+            let worldName = getWorldName();
+            //let worldSeed = await getWorldSeed();
+            //Worldgen(worldName, worldSeed);
+        });
+
+        function getWorldName() {
+            console.log("Getting world name");
+            log("Please, write the world name:");
+            runButton.onclick = (() => {
+                if (command.value == null || command.value == "") {
+                    log("World name mustn't be empty!");
+                }
+                else {
+                    log("Set name: " + command.value);
+                    return command.value;
+                }
+            });
+        }
+
+        function log(message) {
+            let date = new Date()
+            terminal.innerHTML += `[${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}] > ${message} <br>`;
+        }
+
+
+
+
+    </script>
 </body>
 
 </html>
