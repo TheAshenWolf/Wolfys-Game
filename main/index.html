@@ -20,6 +20,20 @@
                 <div class="menu-button">
                     <span>Load World</span>
                 </div>
+                <hr>
+                <div class="menu-button">
+                    <span>World:</span><span id="world-name"></span>
+                </div>
+                <div class="menu-button">
+                    <span>Seed:</span><span id="world-seed"></span>
+                </div>
+                <div class="menu-button">
+                    <span>Position x:</span><span id="position-x"></span>
+                </div>
+                <div class="menu-button">
+                    <span>Position y:</span><span id="position-y"></span>
+                </div>
+
             </div>
         </div>
         <div class="canvas-border">
@@ -29,8 +43,15 @@
         </div>
         <div class="border">
             <div id="game-windows">
-                <div id="stats"></div>
-                <div id="inventory"></div>
+                <div id="status">
+                    <div class="stat" id="health-points"></div>
+                    <div class="stat" id="mana-points"></div>
+                    <div class="stat" id="experience-points"></div>
+                    <div class="stat" id="level"></div>
+                </div>
+                <div id="stats">
+
+                </div>
             </div>
         </div>
     </div>

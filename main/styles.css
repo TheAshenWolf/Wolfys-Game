@@ -119,3 +119,12 @@ body {
     font-weight: bold;
     font-size: 1.2em;
 }
+
+hr {
+    border-color: gold;
+    border-width: 3px;
+    border-style: inset;
+    width: calc(100% - 6px);
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
