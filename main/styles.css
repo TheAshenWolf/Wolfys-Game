@@ -93,7 +93,7 @@ body {
     margin-right: 10px;
 }
 
-.menu-button {
+.menu-button, .menu-info {
     border-radius: 16px;
     border-color: gold;
     height: 48px;
@@ -107,6 +107,12 @@ body {
     justify-content: space-around;
     cursor: pointer;
     color: gold;
+}
+
+.menu-info {
+    padding-left: 16px;
+    padding-right: 16px;
+    justify-content: space-between;
 }
 
 .menu-button:hover{
@@ -127,4 +133,31 @@ hr {
     width: calc(100% - 6px);
     margin-top: 16px;
     margin-bottom: 16px;
+}
+
+#status {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: calc(100% - 32px);
+    
+}
+
+#health-points, #mana-points, #experience-points {
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    background-color: #aaa;
+    height: 24px;
 }

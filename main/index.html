@@ -21,16 +21,16 @@
                     <span>Load World</span>
                 </div>
                 <hr>
-                <div class="menu-button">
+                <div class="menu-info">
                     <span>World:</span><span id="world-name"></span>
                 </div>
-                <div class="menu-button">
+                <div class="menu-info">
                     <span>Seed:</span><span id="world-seed"></span>
                 </div>
-                <div class="menu-button">
+                <div class="menu-info">
                     <span>Position x:</span><span id="position-x"></span>
                 </div>
-                <div class="menu-button">
+                <div class="menu-info">
                     <span>Position y:</span><span id="position-y"></span>
                 </div>
 
@@ -44,10 +44,18 @@
         <div class="border">
             <div id="game-windows">
                 <div id="status">
-                    <div class="stat" id="health-points"></div>
-                    <div class="stat" id="mana-points"></div>
-                    <div class="stat" id="experience-points"></div>
-                    <div class="stat" id="level"></div>
+                    <div class="stat" id="health-points">
+                        <span>HP: </span><span><span id="text-hp-current"></span>/<span id="text-hp-max"></span></span>
+                    </div>
+                    <div class="stat" id="mana-points">
+                        <span>MP: </span><span><span id="text-mp-current"></span>/<span id="text-mp-max"></span></span>
+                    </div>
+                    <div class="stat" id="experience-points">
+                        <span>EXP: </span><span><span id="text-xp-current"></span>/<span id="text-xp-max"></span></span>
+                    </div>
+                    <div class="stat" id="level">
+                        <span>Level: </span><span id="text-level"></span>
+                    </div>
                 </div>
                 <div id="stats">
 
