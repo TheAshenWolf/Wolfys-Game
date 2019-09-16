@@ -79,14 +79,13 @@
         var runButton = document.getElementById("run-button");
 
         var createWorldButton = document.getElementById("create-world");
-        createWorldButton.onclick = (() => {
-            let worldName = getWorldName();
-            //let worldSeed = await getWorldSeed();
+        createWorldButton.onclick = (async () => {
+            let worldSeed, worldName = getWorldData();
+            console.log(worldName, worldSeed)
             //Worldgen(worldName, worldSeed);
         });
 
-        function getWorldName() {
-            console.log("Getting world name");
+        function getWorldData() {
             log("Please, write the world name:");
             runButton.onclick = (() => {
                 if (command.value == null || command.value == "") {
@@ -94,6 +93,30 @@
                 }
                 else {
                     log("Set name: " + command.value);
+                    resetCommand();
+
+                    let name = command.value;
+                    let seed = getWorldSeed();
+                    return name, seed;
+                }
+            });
+        }
+
+        function getWorldSeed() {
+            log("Please, write a seed (number), or leave empty for random seed.");
+            runButton.onclick = (() => {
+                if (isNaN(Number(command.value))) {
+                    log("Seed must be a number")
+                }
+                else if (command.value == null || command.value == "") {
+                    let seed = Math.floor(Math.random() * 10000000)
+                    log("Set seed: " + seed);
+                    resetCommand();
+                    return seed;
+                }
+                else {
+                    log("Set seed: " + command.value);
+                    resetCommand();
                     return command.value;
                 }
             });
@@ -101,7 +124,12 @@
 
         function log(message) {
             let date = new Date()
+            command.value = "";
             terminal.innerHTML += `[${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}] > ${message} <br>`;
+        }
+
+        function resetCommand() {
+            runButton.onclick = (() => {return null});
         }
 
 
