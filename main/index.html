@@ -5,6 +5,7 @@
     <title>Game in five days</title>
     <script src="main.js"></script>
     <link rel="stylesheet" type="text/css" href="./styles.css">
+    <script type="script/javascript" src="worldgen.js"></script>
 </head>
 
 <body>
@@ -79,10 +80,10 @@
         var runButton = document.getElementById("run-button");
 
         var createWorldButton = document.getElementById("create-world");
-        createWorldButton.onclick = (async () => {
+        createWorldButton.onclick = (() => {
             let worldSeed, worldName = getWorldData();
             console.log(worldName, worldSeed)
-            //Worldgen(worldName, worldSeed);
+            
         });
 
         function getWorldData() {
