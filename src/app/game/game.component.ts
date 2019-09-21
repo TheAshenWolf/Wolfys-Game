@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 
 @Component({
@@ -7,6 +7,7 @@ import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
     styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit, OnDestroy {
+    @ViewChild('command', {static: true}) commandLine;
 
     subscription: SubscriptionObject = {};
     consoleLog: string = ``;
@@ -18,13 +19,16 @@ export class GameComponent implements OnInit, OnDestroy {
         this.log('woof');
     }
 
-    public worldcreation(): void {
+    public submit() {
+        this.log('woof?');
+    }
+
+    public async worldcreation(): Promise<void> {
 
     }
 
     public log(message) {
-        let date = new Date();
-        this.consoleLog += `[${date.toLocaleTimeString()}] > ${message} <br>`;
+        this.consoleLog = `[${new Date().toLocaleTimeString()}] > ${message} <br>` + this.consoleLog;
     }
 
 

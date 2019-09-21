@@ -55,9 +55,9 @@
 </div>
 
 <div id="console">
-    <div id="log" [innerHTML]="consoleLog"></div>
+    <div id="log" [innerHTML]="consoleLog" #log></div>
     <div id="command">
-        <input type="text" id="command-line">
+        <input type="text" id="command-line" #command>
         <button id="run-button" value="Run">Run</button>
     </div>
 </div>
