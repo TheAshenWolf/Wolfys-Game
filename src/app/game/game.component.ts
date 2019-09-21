@@ -1,15 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
     styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
+
+    subscription: SubscriptionObject = {};
 
     constructor() { }
 
-    ngOnInit() {
+    ngOnInit(): void {
+    }
+
+    public worldcreation(): void {
+
     }
 
     /*
@@ -70,5 +77,9 @@ export class GameComponent implements OnInit {
             }
     
     */
+
+    ngOnDestroy(): void {
+        SOM.clearSubscriptionsObject(this.subscription);
+    }
 
 }
