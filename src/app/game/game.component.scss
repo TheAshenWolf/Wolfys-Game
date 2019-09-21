@@ -1,0 +1,166 @@
+
+:host {
+    width: 100vw;
+    height: 100vh;
+    background-color: #1e133b;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-family: sans-serif;
+}
+
+#main {
+   display: flex;
+   flex-direction: row;
+   justify-content: space-around;
+}
+
+.border {
+   border-style: outset;
+   border-color: gold;
+   border-width: 3px;
+   height: 542px;
+   width: 438px;
+   border-radius: 19px;
+}
+
+#game-menu, #game-windows {
+   display: flex;
+   width: 400px;
+   height: 504px;
+   padding: 16px;
+   border-radius: 16px;
+   border-style: inset;
+   border-color: gold;
+   border-width: 3px;
+   flex-direction: column;
+   align-content: center;
+   align-items: center;
+}
+
+.canvas-border {
+   border-style: outset;
+   border-color: gold;
+   border-width: 3px;
+   height: 542px;
+   width: 782px;
+   border-radius: 19px;
+}
+
+#canvas-div {
+   padding: 16px;
+   border-style: inset;
+   border-color: gold;
+   border-width: 3px;
+   height: 504px;
+   border-radius: 16px;
+}
+
+#canvas {
+   width: 744px;
+   height: 504px;
+   border: gold solid 1px;
+   background-color: #ddd;
+}
+
+#console {
+   background-color: #ddd;
+   color: black;
+   font-weight: bold;
+   height: 350px;
+   width: 744px;
+   align-self: center;
+}
+
+#log {
+   height: 325px;
+   padding-left: 20px;
+   padding-right: 20px;
+   overflow: auto;
+}
+
+#command-line{
+   width: 600px;
+   margin-left: 15px;
+   margin-right: 15px;
+}
+
+#command button {
+   width: 80px;
+   margin-right: 10px;
+}
+
+.menu-button, .menu-info {
+   border-radius: 16px;
+   border-color: gold;
+   height: 48px;
+   width: 100%;
+   border-style: inset;
+   margin-top: 8px;
+   margin-bottom: 8px;
+   display: flex;
+   align-items: center;
+   align-content: center;
+   justify-content: space-around;
+   cursor: pointer;
+   color: gold;
+}
+
+.menu-info {
+   padding-left: 16px;
+   padding-right: 16px;
+   justify-content: space-between;
+   width: calc(100% - 32px);
+}
+
+.menu-button:hover{
+   border-color: #f5a442;
+   color: #f5a442;
+}
+
+.menu-button span {
+   font-weight: bold;
+   font-size: 1.2em;
+}
+
+hr {
+   border-color: gold;
+   border-width: 3px;
+   border-style: inset;
+   width: calc(100% - 6px);
+   margin-top: 16px;
+   margin-bottom: 16px;
+}
+
+#status {
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+   justify-content: space-around;
+}
+
+.stat {
+   display: flex;
+   justify-content: space-between;
+   align-content: center;
+   align-items: center;
+   padding-left: 16px;
+   padding-right: 16px;
+   margin-top: 8px;
+   margin-bottom: 8px;
+   width: calc(100% - 32px);
+   
+}
+
+#health-points, #mana-points, #experience-points {
+   color: white;
+   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+   background-color: #aaa;
+   height: 24px;
+}
+
+#level {
+   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+   color: gold;
+   font-weight: bold;
+}
