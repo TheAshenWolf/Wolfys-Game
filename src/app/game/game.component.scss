@@ -1,4 +1,8 @@
 
+*{
+    font-family: sans-serif;
+}
+
 :host {
     width: 100vw;
     height: 100vh;
@@ -163,4 +167,17 @@ hr {
    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
    color: gold;
    font-weight: bold;
+}
+
+.afterclick-button {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+
+    button {
+        width: 50%;
+    }
 }

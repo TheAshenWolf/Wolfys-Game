@@ -1,8 +1,19 @@
 <div id="main">
     <div class="border">
         <div id="game-menu">
-            <div class="menu-button" id="create-world" (click)="worldcreation()">
-                <span>Create World</span>
+            <div class="menu-button" id="create-world" (click)="startWorldCreation()">
+                <ng-container *ngIf="!creatingWorld; else elseWorldCreation">
+                    <div>Create World</div>
+                </ng-container>
+                <ng-template #elseWorldCreation>
+                    <div class="afterclick-button">
+                        <div class="name-seed">
+                            <input type="text" placeholder="World name" #worldName>
+                            <input type="number" placeholder="Seed" #worldSeed>
+                        </div>
+                        <button type="button" (click)="worldCreation(worldName.value, worldSeed.value, $event)">Create World</button>
+                    </div>
+                </ng-template>
             </div>
             <div class="menu-button">
                 <span>Save World</span>
