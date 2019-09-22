@@ -29,7 +29,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.creatingWorld = true;
     }
 
-    public worldCreation(name, seed, event) {
+    public worldCreation(name, seed, event): void {
         if ((name && name.length > 2)) {
             if (seed === undefined || seed === null || seed === '') {
                 seed = Math.floor(Math.random() * 10000000);
@@ -47,13 +47,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
     }
 
-    public log(message) {
+    public log(message): void {
         this.consoleLog = `[${new Date().toLocaleTimeString()}] > ${message} <br>` + this.consoleLog;
     }
-
 
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
     }
-
 }
