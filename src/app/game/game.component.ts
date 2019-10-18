@@ -18,6 +18,8 @@ export class GameComponent implements OnInit, OnDestroy {
     amountXTiles = 31;
     amountYTiles = 21;
     tileSizePixels = 24;
+    canvasWidth = this.amountXTiles * this.tileSizePixels;
+    canvasHeight = this.amountYTiles * this.tileSizePixels;
 
     constructor() { }
 
