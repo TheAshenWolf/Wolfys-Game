@@ -9,10 +9,15 @@ import * as SimplexNoise from 'simplex-noise';
 })
 export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('args', { static: true }) commandLine;
+    @ViewChild('canvas', { static: true }) canvas;
 
+    context;
     subscription: SubscriptionObject = {};
     consoleLog: string = ``;
     creatingWorld: boolean = false;
+    amountXTiles = 31;
+    amountYTiles = 21;
+    tileSizePixels = 24;
 
     constructor() { }
 
@@ -40,12 +45,22 @@ export class GameComponent implements OnInit, OnDestroy {
             this.log('World Name: ' + name);
             this.log('World Seed: ' + seed);
 
+            this.context = this.canvas.nativeElement.getContext('2d'); // tmp
+
             let pattern = new SimplexNoise(seed.toString());
-            let pattern2d = new Array(30);
-            for (let x = 0; x < 30; x++) {
-                let arr = new Array(20);
-                for (let y = 0; y < 20; y++) {
-                    arr[y] = (pattern.noise2D(x,y) + 1) / 2; 
+            let pattern2d = new Array(this.amountXTiles);
+            for (let x = 0; x < this.amountXTiles; x++) {
+                let arr = new Array(this.amountYTiles);
+                for (let y = 0; y < this.amountYTiles; y++) {
+                    arr[y] = (pattern.noise2D(x,y) + 1) / 2;
+
+                    // tmp
+
+                    let color = Math.floor(arr[y] * 256);
+                    this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
+                    this.context.fillRect(x*this.tileSizePixels,y*this.tileSizePixels,this.tileSizePixels,this.tileSizePixels);
+
+                    // ^tmp
                 }
                 pattern2d[x] = arr;
             } 
@@ -58,15 +73,21 @@ export class GameComponent implements OnInit, OnDestroy {
             this.log('World name must be at least 3 characters long!');
         }
 
-        event.stopPropagation();
+        if (event) event.stopPropagation();
 
     }
 
     public command(argstr: string): void {
         const args = argstr.split(' ');
+        this.log(argstr);
         switch(args[0]) {
-            case 'clear':
+            case 'clear': // Clears the console
                 this.consoleLog = '';
+            break;
+            case 'createworld': // Creates world with give name and (optional) seed
+                let name = args[1];
+                let seed = args[2];
+                this.worldCreation(name, (seed || undefined), undefined);
             break;
         }
         this.commandLine.nativeElement.value = '';  
