@@ -3,7 +3,7 @@
         <div id="game-menu">
             <div class="menu-button" id="create-world" (click)="startWorldCreation()">
                 <ng-container *ngIf="!creatingWorld; else elseWorldCreation">
-                    <div>Create World</div>
+                    <div><span>Create World</span></div>
                 </ng-container>
                 <ng-template #elseWorldCreation>
                     <div class="afterclick-button">
@@ -68,7 +68,7 @@
 <div id="console">
     <div id="log" [innerHTML]="consoleLog" #log></div>
     <div id="command">
-        <input type="text" id="command-line" #command>
-        <button id="run-button" value="Run">Run</button>
+        <input type="text" id="command-line" #args>
+        <button id="run-button" value="Run" (click)="command(args.value)">Run</button>
     </div>
 </div>
