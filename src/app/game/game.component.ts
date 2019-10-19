@@ -10,6 +10,13 @@ import * as SimplexNoise from 'simplex-noise';
 export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('args', { static: true }) commandLine;
     @ViewChild('canvas', { static: true }) canvas;
+    @ViewChild('grass1', { static: true }) tileGrass1;
+    @ViewChild('grass2', { static: true }) tileGrass2;
+    @ViewChild('grass3', { static: true }) tileGrass3;
+    @ViewChild('tree', { static: true }) tileTree;
+    @ViewChild('stump', { static: true }) tileStump;
+    @ViewChild('rock', { static: true }) tileRock;
+    @ViewChild('lake', { static: true }) tileLake;
 
     context;
     subscription: SubscriptionObject = {};
@@ -54,14 +61,26 @@ export class GameComponent implements OnInit, OnDestroy {
             for (let x = 0; x < this.amountXTiles; x++) {
                 let arr = new Array(this.amountYTiles);
                 for (let y = 0; y < this.amountYTiles; y++) {
-                    arr[y] = (pattern.noise2D(x,y) + 1) / 2;
-
+                    let num = (pattern.noise2D(x,y) + 1) / 2;
+                    arr[y] = num;
                     // tmp
+                    let tile;
 
+                    if (num < 0.05) tile = this.tileLake.nativeElement;
+                    else if (num < 0.1) tile = this.tileStump.nativeElement;
+                    else if (num < 0.35) tile = this.tileGrass1.nativeElement;
+                    else if (num < 0.6) tile = this.tileGrass2.nativeElement;
+                    else if (num < 0.85) tile = this.tileGrass3.nativeElement;
+                    else if (num < 0.9) tile = this.tileRock.nativeElement;
+                    else tile = this.tileTree.nativeElement;
+
+                    this.context.drawImage(tile, x*this.tileSizePixels, y*this.tileSizePixels);
+                    
+/*
                     let color = Math.floor(arr[y] * 256);
                     this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
-                    this.context.fillRect(x*this.tileSizePixels,y*this.tileSizePixels,this.tileSizePixels,this.tileSizePixels);
-
+                    this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
+*/
                     // ^tmp
                 }
                 pattern2d[x] = arr;
