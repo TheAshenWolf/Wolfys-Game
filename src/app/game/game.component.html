@@ -23,22 +23,22 @@
             </div>
             <hr>
             <div class="menu-info">
-                <span>World:</span><span id="world-name"></span>
+                <span>World:</span><span id="world-name">{{world.name}}</span>
             </div>
             <div class="menu-info">
-                <span>Seed:</span><span id="world-seed"></span>
+                <span>Seed:</span><span id="world-seed">{{world.seed}}</span>
             </div>
             <div class="menu-info">
-                <span>Position x:</span><span id="position-x"></span>
+                <span>Position x:</span><span id="position-x">{{world.posX}}</span>
             </div>
             <div class="menu-info">
-                <span>Position y:</span><span id="position-y"></span>
+                <span>Position y:</span><span id="position-y">{{world.posY}}</span>
             </div>
 
         </div>
     </div>
     <div class="canvas-border">
-        <div id="canvas-div">
+        <div id="canvas-div" style="position: relative">
             <img src="../../assets/world/grass-1.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass1>
             <img src="../../assets/world/grass-2.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass2>
             <img src="../../assets/world/grass-3.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass3>
@@ -47,6 +47,7 @@
             <img src="../../assets/world/rock.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #rock>
             <img src="../../assets/world/tree.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #tree>
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
+            <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
         </div>
     </div>
     <div class="border">

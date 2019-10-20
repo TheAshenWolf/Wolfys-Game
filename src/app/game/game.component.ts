@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 
@@ -18,7 +18,30 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('rock', { static: true }) tileRock;
     @ViewChild('lake', { static: true }) tileLake;
 
+    @HostListener('document:keypress', ['$event'])
+    movement(event: KeyboardEvent) {
+        if(this.commandLine.nativeElement !== document.activeElement) {
+            if( event.key === 'w') {
+
+            }
+            else if (event.key === 's') {
+
+            }
+            else if (event.key === 'a') {
+
+            }
+            else if (event.key === 'd') {
+
+            }
+            event.stopPropagation();
+        }
+        
+        console.log(event);
+        //event.preventDefault();
+        
+    }
     context;
+    pattern;
     subscription: SubscriptionObject = {};
     consoleLog: string = ``;
     creatingWorld: boolean = false;
@@ -27,6 +50,20 @@ export class GameComponent implements OnInit, OnDestroy {
     tileSizePixels = 24;
     canvasWidth = this.amountXTiles * this.tileSizePixels;
     canvasHeight = this.amountYTiles * this.tileSizePixels;
+    world = {
+        seed: null,
+        name: 'world',
+        posX: 15,
+        posY: 10,
+        tileX: 0,
+        tileY: 0
+    }
+    characterSrc = '../../assets/character/front.png';
+    characterPos = {
+        position: 'absolute',
+        left: (this.world.posX * this.tileSizePixels + this.tileSizePixels/3*2 ) + 'px',
+        top: (this.world.posY * this.tileSizePixels + this.tileSizePixels/3*2+1 ) + 'px'
+    };
 
     constructor() { }
 
@@ -54,18 +91,21 @@ export class GameComponent implements OnInit, OnDestroy {
             this.log('World Name: ' + name);
             this.log('World Seed: ' + seed);
 
+            this.world.name = name;
+            this.world.seed = seed;
+
             this.context = this.canvas.nativeElement.getContext('2d'); // tmp
 
-            let pattern = new SimplexNoise(seed.toString());
+            this.pattern = new SimplexNoise(seed.toString());
             let pattern2d = new Array(this.amountXTiles);
             for (let x = 0; x < this.amountXTiles; x++) {
                 let arr = new Array(this.amountYTiles);
                 for (let y = 0; y < this.amountYTiles; y++) {
-                    let num = (pattern.noise2D(x,y) + 1) / 2;
+                    let num = (this.pattern.noise2D(x,y) + 1) / 2;
                     arr[y] = num;
-                    // tmp
-                    let tile;
 
+
+                    let tile;
                     if (num < 0.05) tile = this.tileLake.nativeElement;
                     else if (num < 0.1) tile = this.tileStump.nativeElement;
                     else if (num < 0.35) tile = this.tileGrass1.nativeElement;
@@ -81,12 +121,11 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
                     this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
 */
-                    // ^tmp
                 }
                 pattern2d[x] = arr;
             } 
 
-            console.log(pattern2d);
+            this.addCharacter();
 
             this.log('World created');
         }
@@ -112,6 +151,13 @@ export class GameComponent implements OnInit, OnDestroy {
             break;
         }
         this.commandLine.nativeElement.value = '';  
+    }
+
+    public addCharacter() {
+        let coordX = (this.world.posX - this.world.tileX * this.amountXTiles) * this.tileSizePixels;
+        let coordY = (this.world.posY - this.world.tileY * this.amountYTiles) * this.tileSizePixels;
+        this.characterPos.left = coordX + this.tileSizePixels/3*2 + 'px';
+        this.characterPos.top = coordY + this.tileSizePixels/3*2+1 + 'px';
     }
 
     public log(message): void {
