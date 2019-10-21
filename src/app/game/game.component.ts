@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 
@@ -9,6 +9,13 @@ import * as SimplexNoise from 'simplex-noise';
 })
 export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('args', { static: true }) commandLine;
+    @ViewChild('worldName', { static: true }) set contentWorldName(content: ElementRef) {
+        this.worldName = content;
+    }
+    @ViewChild('worldSeed', { static: true }) set contentWorldSeed(content: ElementRef) {
+        this.worldSeed = content;
+    }
+
     @ViewChild('canvas', { static: true }) canvas;
     @ViewChild('grass1', { static: true }) tileGrass1;
     @ViewChild('grass2', { static: true }) tileGrass2;
@@ -17,29 +24,75 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('stump', { static: true }) tileStump;
     @ViewChild('rock', { static: true }) tileRock;
     @ViewChild('lake', { static: true }) tileLake;
+    @ViewChild('herb', { static: true }) tileHerb;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent) {
-        if(this.commandLine.nativeElement !== document.activeElement) {
-            if( event.key === 'w') {
-
+        console.log(this.world.relativePosX, this.world.relativePosY);
+        if (this.commandLine.nativeElement !== document.activeElement) {
+            if (event.key === 'w') {
+                this.characterSrc = '../../assets/character/back.png';
+                if (this.safeTile(this.world.posX, this.world.posY - 1)) {
+                    this.world.posY = this.world.posY - 1;
+                    if(this.world.relativePosY <= 0) {
+                        this.world.tileSetY = this.world.tileSetY - 1;
+                        this.world.relativePosY = this.amountYTiles -1;
+                        this.generateMap();
+                    }
+                }
             }
             else if (event.key === 's') {
-
+                this.characterSrc = '../../assets/character/front.png';
+                if (this.safeTile(this.world.posX, this.world.posY + 1)) {
+                    this.world.posY = this.world.posY + 1;
+                    if(this.world.relativePosY >= this.amountYTiles - 1) {
+                        this.world.tileSetY = this.world.tileSetY + 1;
+                        this.world.relativePosY = 0;
+                        this.generateMap();
+                    }
+                }  
             }
             else if (event.key === 'a') {
-
+                if (this.step) {
+                    this.characterSrc = '../../assets/character/left-1.png';
+                } else {
+                    this.characterSrc = '../../assets/character/left-2.png';
+                }
+                this.step = !this.step;
+                if (this.safeTile(this.world.posX - 1, this.world.posY)) {
+                    this.world.posX = this.world.posX - 1;
+                    if(this.world.relativePosX <= 0) {
+                        this.world.tileSetX = this.world.tileSetX - 1;
+                        this.world.relativePosX = this.amountXTiles -1;
+                        this.generateMap();
+                    }
+                }   
             }
             else if (event.key === 'd') {
-
+                if (this.step) {
+                    this.characterSrc = '../../assets/character/right-1.png';
+                } else {
+                    this.characterSrc = '../../assets/character/right-2.png';
+                }
+                this.step = !this.step;
+                if (this.safeTile(this.world.posX + 1, this.world.posY)) {
+                    this.world.posX = this.world.posX + 1;
+                    if(this.world.relativePosX >= this.amountXTiles - 1) {
+                        this.world.tileSetX = this.world.tileSetX + 1;
+                        this.world.relativePosX = 0;
+                        this.generateMap();
+                    }
+                }
             }
             event.stopPropagation();
+            this.setCharacterPos();
+            event.preventDefault();
         }
-        
-        console.log(event);
-        //event.preventDefault();
-        
     }
+
+
+    worldName;
+    worldSeed;
     context;
     pattern;
     subscription: SubscriptionObject = {};
@@ -55,15 +108,18 @@ export class GameComponent implements OnInit, OnDestroy {
         name: 'world',
         posX: 15,
         posY: 10,
-        tileX: 0,
-        tileY: 0
+        tileSetX: 0,
+        tileSetY: 0,
+        relativePosX: 15,
+        relativePosY: 10
     }
     characterSrc = '../../assets/character/front.png';
     characterPos = {
         position: 'absolute',
-        left: (this.world.posX * this.tileSizePixels + this.tileSizePixels/3*2 ) + 'px',
-        top: (this.world.posY * this.tileSizePixels + this.tileSizePixels/3*2+1 ) + 'px'
+        left: (this.world.posX * this.tileSizePixels + this.tileSizePixels / 3 * 2) + 'px',
+        top: (this.world.posY * this.tileSizePixels + this.tileSizePixels / 3 * 2 + 1) + 'px'
     };
+    step: boolean = true;
 
     constructor() { }
 
@@ -75,8 +131,9 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public startWorldCreation() {
-        if(!this.creatingWorld){
+        if (!this.creatingWorld) {
             this.log('Please, write in the world name and the seed. The seed may be empty for a random one.');
+            this.log('Example: [name] [seed]');
         }
         this.creatingWorld = true;
     }
@@ -94,38 +151,9 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.name = name;
             this.world.seed = seed;
 
-            this.context = this.canvas.nativeElement.getContext('2d'); // tmp
+            this.generateMap();
 
-            this.pattern = new SimplexNoise(seed.toString());
-            let pattern2d = new Array(this.amountXTiles);
-            for (let x = 0; x < this.amountXTiles; x++) {
-                let arr = new Array(this.amountYTiles);
-                for (let y = 0; y < this.amountYTiles; y++) {
-                    let num = (this.pattern.noise2D(x,y) + 1) / 2;
-                    arr[y] = num;
-
-
-                    let tile;
-                    if (num < 0.05) tile = this.tileLake.nativeElement;
-                    else if (num < 0.1) tile = this.tileStump.nativeElement;
-                    else if (num < 0.35) tile = this.tileGrass1.nativeElement;
-                    else if (num < 0.6) tile = this.tileGrass2.nativeElement;
-                    else if (num < 0.85) tile = this.tileGrass3.nativeElement;
-                    else if (num < 0.9) tile = this.tileRock.nativeElement;
-                    else tile = this.tileTree.nativeElement;
-
-                    this.context.drawImage(tile, x*this.tileSizePixels, y*this.tileSizePixels);
-                    
-/*
-                    let color = Math.floor(arr[y] * 256);
-                    this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
-                    this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
-*/
-                }
-                pattern2d[x] = arr;
-            } 
-
-            this.addCharacter();
+            this.setCharacterPos();
 
             this.log('World created');
         }
@@ -140,28 +168,82 @@ export class GameComponent implements OnInit, OnDestroy {
     public command(argstr: string): void {
         const args = argstr.split(' ');
         this.log(argstr);
-        switch(args[0]) {
-            case 'clear': // Clears the console
-                this.consoleLog = '';
-            break;
-            case 'createworld': // Creates world with give name and (optional) seed
-                let name = args[1];
-                let seed = args[2];
-                this.worldCreation(name, (seed || undefined), undefined);
-            break;
+        if(this.creatingWorld) {
+            let name = args[0];
+            let seed = args[1];
+            this.worldCreation(name, (seed || undefined), undefined);
         }
-        this.commandLine.nativeElement.value = '';  
+        else {
+            switch (args[0]) {
+                case 'clear': // Clears the console
+                    this.consoleLog = '';
+                    break;
+                case 'createworld': // Creates world with give name and (optional) seed
+                    let name = args[1];
+                    let seed = args[2];
+                    this.worldCreation(name, (seed || undefined), undefined);
+                    break;
+            }
+        }
+        
+        this.commandLine.nativeElement.value = '';
     }
 
-    public addCharacter() {
-        let coordX = (this.world.posX - this.world.tileX * this.amountXTiles) * this.tileSizePixels;
-        let coordY = (this.world.posY - this.world.tileY * this.amountYTiles) * this.tileSizePixels;
-        this.characterPos.left = coordX + this.tileSizePixels/3*2 + 'px';
-        this.characterPos.top = coordY + this.tileSizePixels/3*2+1 + 'px';
+    public setCharacterPos() {
+        this.world.relativePosX = (this.world.posX - this.world.tileSetX * this.amountXTiles);
+        this.world.relativePosY = (this.world.posY - this.world.tileSetY * this.amountYTiles);
+        let coordX = this.world.relativePosX * this.tileSizePixels;
+        let coordY = this.world.relativePosY * this.tileSizePixels;
+        this.characterPos.left = coordX + this.tileSizePixels / 3 * 2 + 'px';
+        this.characterPos.top = coordY + this.tileSizePixels / 3 * 2 + 1 + 'px';
     }
 
     public log(message): void {
         this.consoleLog = `[${new Date().toLocaleTimeString()}] > ${message} <br>` + this.consoleLog;
+    }
+
+    public safeTile(x: number, y: number): boolean {
+        if (this.world.seed) {
+            let num = (this.pattern.noise2D(x, y) + 1) / 2;
+            return ((num >= 0.1) && (num < 0.8));
+        }
+        else {
+            return false;
+        }
+    }
+
+    private generateMap() {
+        this.context = this.canvas.nativeElement.getContext('2d'); // tmp
+
+            this.pattern = new SimplexNoise(this.world.seed.toString());
+            let pattern2d = new Array(this.amountXTiles);
+            for (let x = 0; x < this.amountXTiles; x++) {
+                let arr = new Array(this.amountYTiles);
+                for (let y = 0; y < this.amountYTiles; y++) {
+                    let num = (this.pattern.noise2D(x + this.world.tileSetX * this.amountXTiles, y + this.world.tileSetY * this.amountYTiles) + 1) / 2;
+                    arr[y] = num;
+
+
+                    let tile;
+                    if (num < 0.05) tile = this.tileLake.nativeElement;
+                    else if (num < 0.1) tile = this.tileStump.nativeElement;
+                    else if (num < 0.13) tile = this.tileHerb.nativeElement;
+                    else if (num < 0.36) tile = this.tileGrass1.nativeElement;
+                    else if (num < 0.62) tile = this.tileGrass2.nativeElement;
+                    else if (num < 0.80) tile = this.tileGrass3.nativeElement;
+                    else if (num < 0.9) tile = this.tileRock.nativeElement;
+                    else tile = this.tileTree.nativeElement;
+
+                    this.context.drawImage(tile, x * this.tileSizePixels, y * this.tileSizePixels);
+
+                    /*
+                                        let color = Math.floor(arr[y] * 256);
+                                        this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
+                                        this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
+                    */
+                }
+                pattern2d[x] = arr;
+            }
     }
 
     ngOnDestroy(): void {
