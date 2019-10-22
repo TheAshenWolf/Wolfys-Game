@@ -81,6 +81,8 @@
    padding-left: 20px;
    padding-right: 20px;
    overflow: auto;
+
+   
 }
 
 #command-line{
@@ -180,4 +182,9 @@ hr {
     button {
         width: 50%;
     }
+}
+
+.error {
+    color:red !important;
+    background-color: red;
 }

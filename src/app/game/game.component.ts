@@ -34,9 +34,9 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.characterSrc = '../../assets/character/back.png';
                 if (this.safeTile(this.world.posX, this.world.posY - 1)) {
                     this.world.posY = this.world.posY - 1;
-                    if(this.world.relativePosY <= 0) {
+                    if (this.world.relativePosY <= 0) {
                         this.world.tileSetY = this.world.tileSetY - 1;
-                        this.world.relativePosY = this.amountYTiles -1;
+                        this.world.relativePosY = this.amountYTiles - 1;
                         this.generateMap();
                     }
                 }
@@ -45,12 +45,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.characterSrc = '../../assets/character/front.png';
                 if (this.safeTile(this.world.posX, this.world.posY + 1)) {
                     this.world.posY = this.world.posY + 1;
-                    if(this.world.relativePosY >= this.amountYTiles - 1) {
+                    if (this.world.relativePosY >= this.amountYTiles - 1) {
                         this.world.tileSetY = this.world.tileSetY + 1;
                         this.world.relativePosY = 0;
                         this.generateMap();
                     }
-                }  
+                }
             }
             else if (event.key === 'a') {
                 if (this.step) {
@@ -61,12 +61,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.step = !this.step;
                 if (this.safeTile(this.world.posX - 1, this.world.posY)) {
                     this.world.posX = this.world.posX - 1;
-                    if(this.world.relativePosX <= 0) {
+                    if (this.world.relativePosX <= 0) {
                         this.world.tileSetX = this.world.tileSetX - 1;
-                        this.world.relativePosX = this.amountXTiles -1;
+                        this.world.relativePosX = this.amountXTiles - 1;
                         this.generateMap();
                     }
-                }   
+                }
             }
             else if (event.key === 'd') {
                 if (this.step) {
@@ -77,7 +77,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.step = !this.step;
                 if (this.safeTile(this.world.posX + 1, this.world.posY)) {
                     this.world.posX = this.world.posX + 1;
-                    if(this.world.relativePosX >= this.amountXTiles - 1) {
+                    if (this.world.relativePosX >= this.amountXTiles - 1) {
                         this.world.tileSetX = this.world.tileSetX + 1;
                         this.world.relativePosX = 0;
                         this.generateMap();
@@ -150,11 +150,16 @@ export class GameComponent implements OnInit, OnDestroy {
 
             this.world.name = name;
             this.world.seed = seed;
+            this.world.posX = 15,
+            this.world.posY = 10,
+            this.world.tileSetX = 0,
+            this.world.tileSetY = 0,
+            this.world.relativePosX = 15,
+            this.world.relativePosY = 10
+
 
             this.generateMap();
-
             this.setCharacterPos();
-
             this.log('World created');
         }
         else {
@@ -165,10 +170,21 @@ export class GameComponent implements OnInit, OnDestroy {
 
     }
 
+    public saveWorld() {
+        //fs.writeFileSync('../../assets/' + this.world.name + '.json', JSON.stringify(this.world));
+        if(this.world.seed) {
+            this.log(JSON.stringify(this.world));
+            this.log('Please, save this somewhere:');
+        }
+        else {
+            this.error('There is no world to save!');
+        }
+    }
+
     public command(argstr: string): void {
         const args = argstr.split(' ');
         this.log(argstr);
-        if(this.creatingWorld) {
+        if (this.creatingWorld) {
             let name = args[0];
             let seed = args[1];
             this.worldCreation(name, (seed || undefined), undefined);
@@ -185,7 +201,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     break;
             }
         }
-        
+
         this.commandLine.nativeElement.value = '';
     }
 
@@ -202,6 +218,11 @@ export class GameComponent implements OnInit, OnDestroy {
         this.consoleLog = `[${new Date().toLocaleTimeString()}] > ${message} <br>` + this.consoleLog;
     }
 
+    public error(message): void {
+        this.consoleLog = `[${new Date().toLocaleTimeString()}] ! > ${message} <br>` + this.consoleLog;
+        console.log(this.consoleLog);
+    }
+
     public safeTile(x: number, y: number): boolean {
         if (this.world.seed) {
             let num = (this.pattern.noise2D(x, y) + 1) / 2;
@@ -215,35 +236,35 @@ export class GameComponent implements OnInit, OnDestroy {
     private generateMap() {
         this.context = this.canvas.nativeElement.getContext('2d'); // tmp
 
-            this.pattern = new SimplexNoise(this.world.seed.toString());
-            let pattern2d = new Array(this.amountXTiles);
-            for (let x = 0; x < this.amountXTiles; x++) {
-                let arr = new Array(this.amountYTiles);
-                for (let y = 0; y < this.amountYTiles; y++) {
-                    let num = (this.pattern.noise2D(x + this.world.tileSetX * this.amountXTiles, y + this.world.tileSetY * this.amountYTiles) + 1) / 2;
-                    arr[y] = num;
+        this.pattern = new SimplexNoise(this.world.seed.toString());
+        let pattern2d = new Array(this.amountXTiles);
+        for (let x = 0; x < this.amountXTiles; x++) {
+            let arr = new Array(this.amountYTiles);
+            for (let y = 0; y < this.amountYTiles; y++) {
+                let num = (this.pattern.noise2D(x + this.world.tileSetX * this.amountXTiles, y + this.world.tileSetY * this.amountYTiles) + 1) / 2;
+                arr[y] = num;
 
 
-                    let tile;
-                    if (num < 0.05) tile = this.tileLake.nativeElement;
-                    else if (num < 0.1) tile = this.tileStump.nativeElement;
-                    else if (num < 0.13) tile = this.tileHerb.nativeElement;
-                    else if (num < 0.36) tile = this.tileGrass1.nativeElement;
-                    else if (num < 0.62) tile = this.tileGrass2.nativeElement;
-                    else if (num < 0.80) tile = this.tileGrass3.nativeElement;
-                    else if (num < 0.9) tile = this.tileRock.nativeElement;
-                    else tile = this.tileTree.nativeElement;
+                let tile;
+                if (num < 0.05) tile = this.tileLake.nativeElement;
+                else if (num < 0.1) tile = this.tileStump.nativeElement;
+                else if (num < 0.13) tile = this.tileHerb.nativeElement;
+                else if (num < 0.36) tile = this.tileGrass1.nativeElement;
+                else if (num < 0.62) tile = this.tileGrass2.nativeElement;
+                else if (num < 0.80) tile = this.tileGrass3.nativeElement;
+                else if (num < 0.9) tile = this.tileRock.nativeElement;
+                else tile = this.tileTree.nativeElement;
 
-                    this.context.drawImage(tile, x * this.tileSizePixels, y * this.tileSizePixels);
+                this.context.drawImage(tile, x * this.tileSizePixels, y * this.tileSizePixels);
 
-                    /*
-                                        let color = Math.floor(arr[y] * 256);
-                                        this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
-                                        this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
-                    */
-                }
-                pattern2d[x] = arr;
+                /*
+                                    let color = Math.floor(arr[y] * 256);
+                                    this.context.fillStyle = 'rgb(' + color + ', ' + color + ', ' + color + ')';
+                                    this.context.fillRect(x*this.tileSizePixels, y*this.tileSizePixels, this.tileSizePixels, this.tileSizePixels);
+                */
             }
+            pattern2d[x] = arr;
+        }
     }
 
     ngOnDestroy(): void {
