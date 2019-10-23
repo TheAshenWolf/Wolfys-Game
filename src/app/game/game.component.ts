@@ -120,6 +120,22 @@ export class GameComponent implements OnInit, OnDestroy {
         top: (this.world.posY * this.tileSizePixels + this.tileSizePixels / 3 * 2 + 1) + 'px'
     };
     step: boolean = true;
+    player = {
+        inventory: {
+            items: {
+                "Test item": {
+                    quantity: 42,
+                    description: 'This item is used for testing. If you see it in your inventory, something is not right.',
+                    icon: '../../assets/world/chestClosed.png'
+                },
+                "Test item 2": {
+                    quantity: 42,
+                    description: 'This item is used for testing. If you see it in your inventory, something is not right.',
+                    icon: '../../assets/world/chestClosed.png'
+                }
+            }
+        }
+    }
 
     constructor() { }
 
@@ -203,6 +219,10 @@ export class GameComponent implements OnInit, OnDestroy {
         }
 
         this.commandLine.nativeElement.value = '';
+    }
+
+    public getItems() {
+        return Object.keys(this.player.inventory.items);
     }
 
     public setCharacterPos() {
