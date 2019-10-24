@@ -12,7 +12,7 @@
             </div>
             <hr>
             <div class="menu-info">
-                <span>World:</span><span id="world-name">{{world.name}}</span>
+                <span>World:</span><span id="world-name">({{ world.tileset.biome }}) {{ world.name }}</span>
             </div>
             <div class="menu-info">
                 <span>Seed:</span><span id="world-seed">{{world.seed}}</span>
@@ -35,7 +35,8 @@
             <img src="../../assets/world/stump.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #stump>
             <img src="../../assets/world/rock.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #rock>
             <img src="../../assets/world/tree.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #tree>
-            <img src="../../assets/world/herb.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herb>
+            <img src="../../assets/world/herbRed.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbRed>
+            <img src="../../assets/world/herbCollected.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbCollected>
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
             <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
         </div>
