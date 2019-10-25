@@ -64,18 +64,18 @@
                 
                 <div class="invIcon" *ngFor="let item of getItems()">
                     <div class="itemIcon">
-                        <img src="{{player.inventory.items[item].icon}}" [alt]="player.inventory.items[item].name">
+                        <img src="{{world.player.inventory.items[item].icon}}" [alt]="world.player.inventory.items[item].name">
                     </div>
                     <div class="itemQuantity">
-                        {{ player.inventory.items[item].quantity }}
+                        {{ world.player.inventory.items[item].quantity }}
                     </div>
                     <div class="item">
                         <div class="itemHeading">
-                            <div class="itemName">{{ item }}</div>
-                            <div class="itemQuantity">{{ player.inventory.items[item].quantity }}</div>
+                            <div class="itemName">{{ world.player.inventory.items[item].name }}</div>
+                            <div class="itemQuantity">{{ world.player.inventory.items[item].quantity }}</div>
                         </div>
                         <div class="itemDescription">
-                            {{ player.inventory.items[item].description }}
+                            {{ world.player.inventory.items[item].description }}
                         </div>
                     </div>
                 </div>

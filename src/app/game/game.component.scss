@@ -40,6 +40,7 @@
    flex-direction: column;
    align-content: center;
    align-items: center;
+   position: relative;
 }
 
 .canvas-border {
@@ -211,6 +212,7 @@ hr {
     overflow-y: auto;
     height: 400px;
     width: 100%;
+    position: relative;
 
     .invIcon{
         border-color: gold;
@@ -244,6 +246,7 @@ hr {
             justify-items: center;
             align-content: space-around;
             align-items: center;
+            position: relative;
         }
 
         .item {

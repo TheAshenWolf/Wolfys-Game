@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef } fro
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/types/biomes';
+import Items from '../shared/types/items';
 
 @Component({
     selector: 'app-game',
@@ -30,14 +31,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent) {
-        console.log(this.world.relativePosX, this.world.relativePosY);
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
                 this.characterSrc = '../../assets/character/back.png';
                 if (this.safeTile(this.world.posX, this.world.posY - 1)) {
                     this.world.posY = this.world.posY - 1;
                     if (this.world.relativePosY <= 0) {
-                        this.world.tileset.tileSetY = this.world.tileset.tileSetY - 1;
+                        this.world.tileset.tilesetY = this.world.tileset.tilesetY - 1;
                         this.world.relativePosY = this.amountYTiles - 1;
                         this.generateMap();
                     }
@@ -48,7 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 if (this.safeTile(this.world.posX, this.world.posY + 1)) {
                     this.world.posY = this.world.posY + 1;
                     if (this.world.relativePosY >= this.amountYTiles - 1) {
-                        this.world.tileset.tileSetY = this.world.tileset.tileSetY + 1;
+                        this.world.tileset.tilesetY = this.world.tileset.tilesetY + 1;
                         this.world.relativePosY = 0;
                         this.generateMap();
                     }
@@ -64,7 +64,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 if (this.safeTile(this.world.posX - 1, this.world.posY)) {
                     this.world.posX = this.world.posX - 1;
                     if (this.world.relativePosX <= 0) {
-                        this.world.tileset.tileSetX = this.world.tileset.tileSetX - 1;
+                        this.world.tileset.tilesetX = this.world.tileset.tilesetX - 1;
                         this.world.relativePosX = this.amountXTiles - 1;
                         this.generateMap();
                     }
@@ -80,11 +80,14 @@ export class GameComponent implements OnInit, OnDestroy {
                 if (this.safeTile(this.world.posX + 1, this.world.posY)) {
                     this.world.posX = this.world.posX + 1;
                     if (this.world.relativePosX >= this.amountXTiles - 1) {
-                        this.world.tileset.tileSetX = this.world.tileset.tileSetX + 1;
+                        this.world.tileset.tilesetX = this.world.tileset.tilesetX + 1;
                         this.world.relativePosX = 0;
                         this.generateMap();
                     }
                 }
+            }
+            else if (event.key === ' ') {
+                this.action();
             }
             event.stopPropagation();
             this.setCharacterPos();
@@ -113,15 +116,21 @@ export class GameComponent implements OnInit, OnDestroy {
         relativePosX: 15,
         relativePosY: 10,
         tileset: {
-            tileSetX: 0,
-            tileSetY: 0,
+            tilesetX: 0,
+            tilesetY: 0,
             biome: 'plains',
-            override: {
-                //x:y:{tile:tile, safe:bool}
-            }
+        },
+        overrides: {
+            //tilex: tiley: x: y:{tile:tile, safe:bool}
         },
         spawnPointX: 15,
-        spawnPointY: 10
+        spawnPointY: 10,
+        player: {
+            inventory: {
+                items: {
+                }
+            }
+        }
     }
     tiles = {};
     characterSrc = '../../assets/character/front.png';
@@ -131,22 +140,7 @@ export class GameComponent implements OnInit, OnDestroy {
         top: (this.world.posY * this.tileSizePixels + this.tileSizePixels / 3 * 2 + 1) + 'px'
     };
     step: boolean = true;
-    player = {
-        inventory: {
-            items: {
-                "Test item": {
-                    quantity: 42,
-                    description: 'This item is used for testing. If you see it in your inventory, something is not right.',
-                    icon: '../../assets/world/chestClosed.png'
-                },
-                "Test item 2": {
-                    quantity: 42,
-                    description: 'This item is used for testing. If you see it in your inventory, something is not right.',
-                    icon: '../../assets/world/chestClosed.png'
-                }
-            }
-        }
-    }
+    
 
     constructor() { }
 
@@ -179,8 +173,8 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.seed = seed;
             this.world.posX = 15,
             this.world.posY = 10,
-            this.world.tileset.tileSetX = 0,
-            this.world.tileset.tileSetY = 0,
+            this.world.tileset.tilesetX = 0,
+            this.world.tileset.tilesetY = 0,
             this.world.relativePosX = 15,
             this.world.relativePosY = 10
 
@@ -233,12 +227,12 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public getItems() {
-        return Object.keys(this.player.inventory.items);
+        return Object.keys(this.world.player.inventory.items);
     }
 
     public setCharacterPos() {
-        this.world.relativePosX = (this.world.posX - this.world.tileset.tileSetX * this.amountXTiles);
-        this.world.relativePosY = (this.world.posY - this.world.tileset.tileSetY * this.amountYTiles);
+        this.world.relativePosX = (this.world.posX - this.world.tileset.tilesetX * this.amountXTiles);
+        this.world.relativePosY = (this.world.posY - this.world.tileset.tilesetY * this.amountYTiles);
         let coordX = this.world.relativePosX * this.tileSizePixels;
         let coordY = this.world.relativePosY * this.tileSizePixels;
         this.characterPos.left = coordX + this.tileSizePixels / 3 * 2 + 'px';
@@ -251,50 +245,68 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public error(message): void {
         this.consoleLog = `[${new Date().toLocaleTimeString()}] ! > ${message} <br>` + this.consoleLog;
-        console.log(this.consoleLog);
     }
 
     public safeTile(x: number, y: number): boolean {
-        return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, this.world.tileset.biome);
-        /*if (this.world.seed) {
-            let num = (this.pattern.noise2D(x, y) + 1) / 2;
-            return ((num >= 0.1) && (num < 0.8));
+        if( this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+            return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].safe;
         }
-        else {
-            return false;
-        }*/
+        return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, this.world.tileset.biome);
     }
 
     private generateMap() {
         this.context = this.canvas.nativeElement.getContext('2d'); // tmp
 
         this.pattern = new SimplexNoise(this.world.seed.toString());
-        this.world.tileset.biome = Biomes.getBiome(this.pattern.noise2D(this.world.tileset.tileSetX, this.world.tileset.tileSetY));
-        let pattern2d = new Array(this.amountXTiles);
+        this.world.tileset.biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, this.world.tileset.tilesetY) + 1) / 2);
+
+        if(this.world.overrides[this.world.tileset.tilesetX] === undefined) {
+            this.world.overrides[this.world.tileset.tilesetX] = {};
+        }
+        if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] === undefined) {
+            this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] = {};
+        }
 
         this.setTiles();
 
         for (let x = 0; x < this.amountXTiles; x++) {
-            let arr = new Array(this.amountYTiles);
             for (let y = 0; y < this.amountYTiles; y++) {
-                let num = (this.pattern.noise2D(x + this.world.tileset.tileSetX * this.amountXTiles, y + this.world.tileset.tileSetY * this.amountYTiles) + 1) / 2;
-                arr[y] = num;
-
+                let num = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
 
                 let tile;
-                /*if (num < 0.05) tile = this.tileLake.nativeElement;
-                else if (num < 0.1) tile = this.tileStump.nativeElement;
-                else if (num < 0.13) tile = this.tileHerbRed.nativeElement;
-                else if (num < 0.36) tile = this.tileGrass1.nativeElement;
-                else if (num < 0.62) tile = this.tileGrass2.nativeElement;
-                else if (num < 0.80) tile = this.tileGrass3.nativeElement;
-                else if (num < 0.9) tile = this.tileRock.nativeElement;
-                else tile = this.tileTree.nativeElement;*/
-                tile = this.tiles[Biomes.getTile(num, this.world.tileset.biome)];
-
+                if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+                    tile =  this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile];
+                }
+                else {
+                    tile = this.tiles[Biomes.getTile(num, this.world.tileset.biome)];
+                }
                 this.context.drawImage(tile, x * this.tileSizePixels, y * this.tileSizePixels);
             }
-            pattern2d[x] = arr;
+        }
+    }
+
+    public action() {
+        let x = this.world.relativePosX;
+        let y = this.world.relativePosY;
+
+        if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+            return null;
+        }
+        else {
+           let tileNum = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
+            let tile = Biomes.getTile(tileNum, this.world.tileset.biome);
+            if (tile == 'herbRed' || tile == 'herbBlue') {
+                if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] === undefined) {
+                    this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
+                }
+                this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = {tile: 'herbCollected', safe: true};
+                this.addToInventory(tile);
+            }
+            else {
+                return null;
+            }
+            this.context.drawImage(this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile], x * this.tileSizePixels, y * this.tileSizePixels);
+            
         }
     }
 
@@ -314,6 +326,17 @@ export class GameComponent implements OnInit, OnDestroy {
             sand1: null,
             sand2: null,
             sand3: null
+        }
+    }
+
+    private addToInventory(item) {
+        if(this.world.player.inventory.items[item]) {
+            if(this.world.player.inventory.items[item].quantity < 1000) {
+                this.world.player.inventory.items[item].quantity += 1;
+            } 
+        }
+        else {
+            this.world.player.inventory.items[item] = Items[item];
         }
     }
 
