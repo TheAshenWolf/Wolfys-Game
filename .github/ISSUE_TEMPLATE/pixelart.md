@@ -2,7 +2,7 @@
 name: Pixelart
 about: New icon or rework
 title: ''
-labels: "\U0001F58C️ Pixelart"
+labels: "\U0001F525 New issue, \U0001F58C️ Pixelart"
 assignees: ''
 
 ---

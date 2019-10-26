@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: "\U0001F4A1 feature"
+labels: "\U0001F4A1 feature, \U0001F525 New issue"
 assignees: ''
 
 ---

@@ -2,7 +2,7 @@
 name: Bug report
 about: Something went wrong
 title: ''
-labels: "\U0001F41B bug"
+labels: "\U0001F41B bug, \U0001F525 New issue"
 assignees: ''
 
 ---
