@@ -129,6 +129,22 @@ export class GameComponent implements OnInit, OnDestroy {
             inventory: {
                 items: {
                 }
+            },
+            stats: {
+                health: {
+                    max: 100,
+                    current: 100
+                },
+                mana: {
+                    max: 50,
+                    current: 50,
+                },
+                experience: {
+                    total: 0,
+                    forNextLevel: 0,
+                    nextLevelExp: 100,
+                    level: 1
+                }
             }
         }
     }
@@ -180,6 +196,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
 
             this.generateMap();
+            this.setDefaultCharacterStats();
             this.setCharacterPos();
             this.log('World created');
         }
@@ -219,6 +236,9 @@ export class GameComponent implements OnInit, OnDestroy {
                     let name = args[1];
                     let seed = args[2];
                     this.worldCreation(name, (seed || undefined), undefined);
+                    break;
+                case 'giveExp':
+                    this.addExperience(+args[1]);
                     break;
             }
         }
@@ -337,6 +357,72 @@ export class GameComponent implements OnInit, OnDestroy {
         }
         else {
             this.world.player.inventory.items[item] = Items[item];
+        }
+    }
+
+    public getHealthFill() {
+        let value = ((this.world.player.stats.health.current / this.world.player.stats.health.max) * 100);
+        if(value == 100){
+            return {'background-color': '#f00'};
+        }
+        else {
+            let obj = 'linear-gradient(to right, #f00, #f00 ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
+            return {'background-image': obj};
+        }
+    }
+
+    public getManaFill() {
+        let value = ((this.world.player.stats.mana.current / this.world.player.stats.mana.max) * 100);
+        if(value == 100){
+            return {'background-color': '#00f'};
+        }
+        else {
+            let obj = 'linear-gradient(to right, #00f, #00f ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
+            return {'background-image': obj};
+        }
+    }
+
+    public getExpFill() {
+        let value = ((this.world.player.stats.experience.forNextLevel / this.world.player.stats.experience.nextLevelExp) * 100);
+        if(value == 100){
+            return {'background-color': '#ff0'};
+        }
+        else {
+            let obj = 'linear-gradient(to right, #ff0, #ff0 ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
+            return {'background-image': obj};
+        }
+    }
+
+    public addExperience(amount) {
+        this.world.player.stats.experience.total += amount;
+
+        this.world.player.stats.experience.level = Math.floor(this.world.player.stats.experience.total / 100) + 1;
+
+        this.world.player.stats.experience.forNextLevel = this.world.player.stats.experience.total - (this.world.player.stats.experience.level -1) * 100;
+    }
+
+    private setDefaultCharacterStats() {
+        this.world.player = {
+            inventory: {
+                items: {
+                }
+            },
+            stats: {
+                health: {
+                    max: 100,
+                    current: 100
+                },
+                mana: {
+                    max: 50,
+                    current: 50,
+                },
+                experience: {
+                    total: 0,
+                    forNextLevel: 0,
+                    nextLevelExp: 100,
+                    level: 1
+                }
+            }
         }
     }
 

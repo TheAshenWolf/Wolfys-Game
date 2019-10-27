@@ -44,17 +44,17 @@
     <div class="border">
         <div id="game-windows">
             <div id="status">
-                <div class="stat" id="health-points">
-                    <span>HP: </span><span><span id="text-hp-current"></span>/<span id="text-hp-max"></span></span>
+                <div class="stat" id="health-points" [ngStyle]="getHealthFill()">
+                    <span>HP: </span><span><span id="text-hp-current">{{ world.player.stats.health.current }}</span> / <span id="text-hp-max">{{ world.player.stats.health.max }}</span></span>
                 </div>
-                <div class="stat" id="mana-points">
-                    <span>MP: </span><span><span id="text-mp-current"></span>/<span id="text-mp-max"></span></span>
+                <div class="stat" id="mana-points" [ngStyle]="getManaFill()">
+                    <span>MP: </span><span><span id="text-mp-current">{{ world.player.stats.mana.current }}</span> / <span id="text-mp-max">{{ world.player.stats.mana.max }}</span></span>
                 </div>
-                <div class="stat" id="experience-points">
-                    <span>EXP: </span><span><span id="text-xp-current"></span>/<span id="text-xp-max"></span></span>
+                <div class="stat" id="experience-points" [ngStyle]="getExpFill()">
+                    <span>EXP: </span><span><span id="text-xp-current">{{ world.player.stats.experience.forNextLevel }}</span> / <span id="text-xp-max">{{ world.player.stats.experience.nextLevelExp }}</span></span>
                 </div>
                 <div class="stat" id="level">
-                    <span>Level: </span><span id="text-level"></span>
+                    <span>Level: </span><span id="text-level">{{ world.player.stats.experience.level }}</span>
                 </div>
             </div>
             <div id="stats">
