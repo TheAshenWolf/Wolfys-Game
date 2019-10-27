@@ -1,6 +1,6 @@
 export function getBiome(value) {
     let biome = 'plains';
-    if (value < .15) biome = 'forest';
+    if (value < .5) biome = 'forest';
     else biome = 'plains';
     return biome;
 }
@@ -8,9 +8,17 @@ export function getBiome(value) {
 export function getTile(num, biome) {
     let tile;
     if (biome == 'forest') {
-        tile = 'tree';
+        if (num < 0.02) tile = 'lake';
+        else if (num < 0.06) tile = 'stump';
+        else if (num < 0.09) tile = 'herbRed';
+        else if (num < 0.12) tile = 'herbBlue';
+        else if (num < 0.27) tile = 'grass1';
+        else if (num < 0.42) tile = 'grass2';
+        else if (num < 0.57) tile = 'grass3';
+        else if (num < 0.6) tile = 'rock';
+        else tile = 'tree';
     }
-    else {
+    else { // plains
         if (num < 0.05) tile = 'lake';
         else if (num < 0.1) tile = 'stump';
         else if (num < 0.13) tile = 'herbRed';
@@ -25,9 +33,18 @@ export function getTile(num, biome) {
 
 export function getSafeTile(num, biome) {
     if (biome == 'forest') {
-        return true;
+        console.log(num);
+        if (num < 0.02) return false;
+        else if (num < 0.06) return false;
+        else if (num < 0.09) return true;
+        else if (num < 0.12) return true;
+        else if (num < 0.27) return true;
+        else if (num < 0.42) return true;
+        else if (num < 0.57) return true;
+        else if (num < 0.6) return false;
+        else return false;
     }
-    else {
+    else { // plains
         if (num < 0.05) return false;
         else if (num < 0.1) return false;
         else if (num < 0.13) return true;

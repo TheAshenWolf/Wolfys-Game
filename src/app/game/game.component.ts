@@ -3,7 +3,6 @@ import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/types/biomes';
 import Items from '../shared/types/items';
-
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
@@ -34,7 +33,8 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
                 this.characterSrc = '../../assets/character/back.png';
-                if (this.safeTile(this.world.posX, this.world.posY - 1)) {
+                let y = this.world.relativePosY<= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
+                if (this.safeTile(this.world.posX, this.world.posY - 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY - 1;
                     if (this.world.relativePosY <= 0) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY - 1;
@@ -44,8 +44,9 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             }
             else if (event.key === 's') {
+                let y = this.world.relativePosY >= this.amountYTiles - 1 ? this.world.tileset.tilesetY + 1 : this.world.tileset.tilesetY;
                 this.characterSrc = '../../assets/character/front.png';
-                if (this.safeTile(this.world.posX, this.world.posY + 1)) {
+                if (this.safeTile(this.world.posX, this.world.posY + 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY + 1;
                     if (this.world.relativePosY >= this.amountYTiles - 1) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY + 1;
@@ -61,7 +62,8 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.characterSrc = '../../assets/character/left-2.png';
                 }
                 this.step = !this.step;
-                if (this.safeTile(this.world.posX - 1, this.world.posY)) {
+                let x = this.world.relativePosX <= 0 ? this.world.tileset.tilesetX - 1 : this.world.tileset.tilesetX;
+                if (this.safeTile(this.world.posX - 1, this.world.posY, Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2))) {
                     this.world.posX = this.world.posX - 1;
                     if (this.world.relativePosX <= 0) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX - 1;
@@ -77,7 +79,9 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.characterSrc = '../../assets/character/right-2.png';
                 }
                 this.step = !this.step;
-                if (this.safeTile(this.world.posX + 1, this.world.posY)) {
+
+                let x = this.world.relativePosX >= this.amountXTiles - 1 ? this.world.tileset.tilesetX + 1 : this.world.tileset.tilesetX;
+                if (this.safeTile(this.world.posX + 1, this.world.posY, Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2))) {
                     this.world.posX = this.world.posX + 1;
                     if (this.world.relativePosX >= this.amountXTiles - 1) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX + 1;
@@ -267,11 +271,11 @@ export class GameComponent implements OnInit, OnDestroy {
         this.consoleLog = `[${new Date().toLocaleTimeString()}] ! > ${message} <br>` + this.consoleLog;
     }
 
-    public safeTile(x: number, y: number): boolean {
+    public safeTile(x: number, y: number, biome = this.world.tileset.biome): boolean {
         if( this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
             return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].safe;
         }
-        return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, this.world.tileset.biome);
+        return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, biome);
     }
 
     private generateMap() {
@@ -341,7 +345,7 @@ export class GameComponent implements OnInit, OnDestroy {
             rock: this.tileRock.nativeElement,
             tree: this.tileTree.nativeElement,
             herbCollected: this.tileHerbCollected.nativeElement,
-            herbBlue: null,
+            herbBlue: this.tileHerbRed.nativeElement, //not added yet .-.
             cactus: null,
             sand1: null,
             sand2: null,
