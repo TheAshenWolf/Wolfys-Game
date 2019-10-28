@@ -100,8 +100,7 @@ export class GameComponent implements OnInit, OnDestroy {
             event.preventDefault();
         }
     }
-
-    env = environment;
+    env;
     worldName;
     worldSeed;
     context;
@@ -168,6 +167,7 @@ export class GameComponent implements OnInit, OnDestroy {
     constructor() { }
 
     ngOnInit(): void {
+        this.env = environment;
     }
 
     public submit() {
