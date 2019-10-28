@@ -237,10 +237,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public loadWorld(str) {
         this.log('Loading world...');
-        this.world = JSON.parse(str);
-        this.setCharacterPos();
-        this.generateMap();
-        this.log('World loaded.');
+        try {
+            this.world = JSON.parse(str.trim());
+            this.setCharacterPos();
+            this.generateMap();
+            this.loadingWorld = false;
+            this.log('World loaded.');
+        }
+        catch {
+            this.loadingWorld = false;
+            this.log('World could not be loaded.');
+        }
+        
+        
+        
     }
 
     public command(argstr: string): void {
