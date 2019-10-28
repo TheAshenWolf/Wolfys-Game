@@ -3,6 +3,7 @@ import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/types/biomes';
 import Items from '../shared/types/items';
+import { environment } from 'src/environments/environment';
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
@@ -26,13 +27,14 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('rock', { static: true }) tileRock;
     @ViewChild('lake', { static: true }) tileLake;
     @ViewChild('herbRed', { static: true }) tileHerbRed;
+    @ViewChild('herbBlue', { static: true }) tileHerbBlue;
     @ViewChild('herbCollected', { static: true }) tileHerbCollected;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent) {
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
-                this.characterSrc = '../../assets/character/back.png';
+                this.characterSrc = environment.component + 'character/back.png';
                 let y = this.world.relativePosY<= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
                 if (this.safeTile(this.world.posX, this.world.posY - 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY - 1;
@@ -45,7 +47,7 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === 's') {
                 let y = this.world.relativePosY >= this.amountYTiles - 1 ? this.world.tileset.tilesetY + 1 : this.world.tileset.tilesetY;
-                this.characterSrc = '../../assets/character/front.png';
+                this.characterSrc = environment.component + 'character/front.png';
                 if (this.safeTile(this.world.posX, this.world.posY + 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY + 1;
                     if (this.world.relativePosY >= this.amountYTiles - 1) {
@@ -57,9 +59,9 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === 'a') {
                 if (this.step) {
-                    this.characterSrc = '../../assets/character/left-1.png';
+                    this.characterSrc = environment.component + 'character/left-1.png';
                 } else {
-                    this.characterSrc = '../../assets/character/left-2.png';
+                    this.characterSrc = environment.component + 'character/left-2.png';
                 }
                 this.step = !this.step;
                 let x = this.world.relativePosX <= 0 ? this.world.tileset.tilesetX - 1 : this.world.tileset.tilesetX;
@@ -74,9 +76,9 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === 'd') {
                 if (this.step) {
-                    this.characterSrc = '../../assets/character/right-1.png';
+                    this.characterSrc = environment.component + 'character/right-1.png';
                 } else {
-                    this.characterSrc = '../../assets/character/right-2.png';
+                    this.characterSrc = environment.component + 'character/right-2.png';
                 }
                 this.step = !this.step;
 
@@ -153,7 +155,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
     tiles = {};
-    characterSrc = '../../assets/character/front.png';
+    characterSrc = environment.component + 'character/front.png';
     characterPos = {
         position: 'absolute',
         left: (this.world.posX * this.tileSizePixels + this.tileSizePixels / 3 * 2) + 'px',
@@ -213,7 +215,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public saveWorld() {
-        //fs.writeFileSync('../../assets/' + this.world.name + '.json', JSON.stringify(this.world));
+        //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if(this.world.seed) {
             this.log(JSON.stringify(this.world));
             this.log('Please, save this somewhere:');
@@ -345,7 +347,7 @@ export class GameComponent implements OnInit, OnDestroy {
             rock: this.tileRock.nativeElement,
             tree: this.tileTree.nativeElement,
             herbCollected: this.tileHerbCollected.nativeElement,
-            herbBlue: this.tileHerbRed.nativeElement, //not added yet .-.
+            herbBlue: this.tileHerbBlue.nativeElement,
             cactus: null,
             sand1: null,
             sand2: null,
