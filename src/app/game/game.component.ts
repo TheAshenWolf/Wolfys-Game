@@ -162,6 +162,7 @@ export class GameComponent implements OnInit, OnDestroy {
         top: (this.world.posY * this.tileSizePixels + this.tileSizePixels / 3 * 2 + 1) + 'px'
     };
     step: boolean = true;
+    loadingWorld: boolean = false;
     
 
     constructor() { }
@@ -225,6 +226,23 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
+    /*
+    {"seed":8804075,"name":"test","posX":24,"posY":23,"relativePosX":24,"relativePosY":2,"tileset":{"tilesetX":0,"tilesetY":1,"biome":"forest"},"overrides":{"0":{"0":{},"1":{"24":{"2":{"tile":"herbCollected","safe":true}}},"-1":{"17":{"14":{"tile":"herbCollected","safe":true}},"23":{"19":{"tile":"herbCollected","safe":true}},"25":{"20":{"tile":"herbCollected","safe":true}},"27":{"11":{"tile":"herbCollected","safe":true}}}},"-1":{"0":{}}},"spawnPointX":15,"spawnPointY":10,"player":{"inventory":{"items":{"herbRed":{"name":"Red Herb","quantity":4,"description":"Use this herb to replenish 10 % of your max health.","icon":"../../assets/world/herbRed.png"},"herbBlue":{"name":"Blue Herb","quantity":1,"description":"Use this herb to replenish 10 % of your max mana.","icon":"../../assets/world/herbBlue.png"}}},"stats":{"health":{"max":100,"current":100},"mana":{"max":50,"current":50},"experience":{"total":96,"forNextLevel":96,"nextLevelExp":100,"level":1}}}}
+    */
+
+    public startWorldLoading() {
+        this.log('Please, paste your saved link and hit run.');
+        this.loadingWorld = true;
+    }
+
+    public loadWorld(str) {
+        this.log('Loading world...');
+        this.world = JSON.parse(str);
+        this.setCharacterPos();
+        this.generateMap();
+        this.log('World loaded.');
+    }
+
     public command(argstr: string): void {
         const args = argstr.split(' ');
         this.log(argstr);
@@ -232,6 +250,9 @@ export class GameComponent implements OnInit, OnDestroy {
             let name = args[0];
             let seed = args[1];
             this.worldCreation(name, (seed || undefined), undefined);
+        }
+        else if (this.loadingWorld) {
+            this.loadWorld(argstr);
         }
         else {
             switch (args[0]) {
