@@ -101,7 +101,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
-
+    env = environment;
     worldName;
     worldSeed;
     context;

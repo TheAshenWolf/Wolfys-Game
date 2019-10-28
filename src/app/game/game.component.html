@@ -28,16 +28,16 @@
     </div>
     <div class="canvas-border">
         <div id="canvas-div" style="position: relative">
-            <img src="../../assets/world/grass-1.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass1>
-            <img src="../../assets/world/grass-2.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass2>
-            <img src="../../assets/world/grass-3.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass3>
-            <img src="../../assets/world/lake.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #lake>
-            <img src="../../assets/world/stump.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #stump>
-            <img src="../../assets/world/rock.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #rock>
-            <img src="../../assets/world/tree.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #tree>
-            <img src="../../assets/world/herbRed.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbRed>
-            <img src="../../assets/world/herbBlue.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbBlue>
-            <img src="../../assets/world/herbCollected.png" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbCollected>
+            <img [src]="env.component + 'world/grass-1.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass1>
+            <img [src]="env.component + 'world/grass-2.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass2>
+            <img [src]="env.component + 'world/grass-3.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass3>
+            <img [src]="env.component + 'world/lake.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #lake>
+            <img [src]="env.component + 'world/stump.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #stump>
+            <img [src]="env.component + 'world/rock.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #rock>
+            <img [src]="env.component + 'world/tree.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #tree>
+            <img [src]="env.component + 'world/herbRed.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbRed>
+            <img [src]="env.component + 'world/herbBlue.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbBlue>
+            <img [src]="env.component + 'world/herbCollected.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbCollected>
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
             <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
         </div>

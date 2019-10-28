@@ -33,7 +33,6 @@ export function getTile(num, biome) {
 
 export function getSafeTile(num, biome) {
     if (biome == 'forest') {
-        console.log(num);
         if (num < 0.02) return false;
         else if (num < 0.06) return false;
         else if (num < 0.09) return true;
