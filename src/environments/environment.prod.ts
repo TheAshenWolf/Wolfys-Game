@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  assets: '../../assets/',
+  assets: 'assets/',
   component: 'assets/',
   base: '/game/'
 };
