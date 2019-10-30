@@ -273,6 +273,9 @@ export class GameComponent implements OnInit, OnDestroy {
                 case 'giveExp':
                     this.addExperience(+args[1]);
                     break;
+                case 'suicide':
+                    this.death();
+                    break;
             }
         }
 
@@ -307,8 +310,8 @@ export class GameComponent implements OnInit, OnDestroy {
         return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, biome);
     }
 
-    private generateMap() {
-        this.context = this.canvas.nativeElement.getContext('2d'); // tmp
+    public generateMap() {
+        this.context = this.canvas.nativeElement.getContext('2d');
 
         this.pattern = new SimplexNoise(this.world.seed.toString());
         this.world.tileset.biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, this.world.tileset.tilesetY) + 1) / 2);
@@ -458,6 +461,36 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             }
         }
+    }
+
+    public death() {
+        if(this.world.player.stats.experience.total > 24) {
+            this.addExperience(-25);
+        }
+        else {
+            this.world.player.stats.experience.total = 0;
+        }
+        this.characterSrc = environment.component + 'character/rip.png';
+        this.world.player.stats.health.current = this.world.player.stats.health.max;
+        this.world.player.stats.mana.current = this.world.player.stats.mana.max;
+        this.world.posX = this.world.spawnPointX;
+        this.world.posY = this.world.spawnPointY;
+        this.world.tileset.tilesetX = 0;
+        this.world.tileset.tilesetY = 0;
+        this.setCharacterPos(); 
+        this.context = this.canvas.nativeElement.getContext('2d');
+        this.context.fillStyle = '#ddd';
+        this.context.fillRect(0,0,this.amountXTiles * this.tileSizePixels, this.amountYTiles * this.tileSizePixels);
+        this.log('You died! You will respawn within 5 seconds.');
+        let timeout = setTimeout(() => {
+            this.respawn();
+            clearTimeout(timeout);
+        }, 5000);
+    }
+
+    public respawn() {
+        this.characterSrc = environment.component + 'character/front.png';
+        this.generateMap();
     }
 
     ngOnDestroy(): void {
