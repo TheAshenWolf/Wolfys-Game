@@ -270,11 +270,17 @@ export class GameComponent implements OnInit, OnDestroy {
                     let seed = args[2];
                     this.worldCreation(name, (seed || undefined), undefined);
                     break;
-                case 'giveExp':
+                case 'givexp':
                     this.addExperience(+args[1]);
                     break;
                 case 'suicide':
                     this.death();
+                    break;
+                case 'givehp':
+                    this.addHealth(+args[1]);
+                    break;
+                case 'givemp':
+                    this.addMana(+args[1]);
                     break;
             }
         }
@@ -491,6 +497,28 @@ export class GameComponent implements OnInit, OnDestroy {
     public respawn() {
         this.characterSrc = environment.component + 'character/front.png';
         this.generateMap();
+    }
+
+    public addHealth(amount) {
+        let hp = this.world.player.stats.health.current + amount;
+        if (hp > this.world.player.stats.health.max) {
+            this.world.player.stats.health.current = this.world.player.stats.health.max;
+        } else if (hp <= 0) {
+            this.death();
+        } else {
+            this.world.player.stats.health.current = hp;
+        }
+    }
+
+    public addMana(amount) {
+        let mp = this.world.player.stats.mana.current + amount;
+        if (mp > this.world.player.stats.mana.max) {
+            this.world.player.stats.mana.current = this.world.player.stats.mana.max;
+        } else if (mp <= 0) {
+            this.world.player.stats.mana.current = 0;
+        } else {
+            this.world.player.stats.mana.current = mp;
+        }
     }
 
     ngOnDestroy(): void {
