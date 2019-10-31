@@ -252,41 +252,43 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public command(argstr: string): void {
-        const args = argstr.split(' ');
-        this.log(argstr);
-        if (this.creatingWorld) {
-            let name = args[0];
-            let seed = args[1];
-            this.worldCreation(name, (seed || undefined), undefined);
-        }
-        else if (this.loadingWorld) {
-            this.loadWorld(argstr);
-        }
-        else {
-            switch (args[0]) {
-                case 'clear': // Clears the console
-                    this.consoleLog = '';
-                    break;
-                case 'createworld': // Creates world with give name and (optional) seed
-                    let name = args[1];
-                    let seed = args[2];
-                    this.worldCreation(name, (seed || undefined), undefined);
-                    break;
-                case 'givexp':
-                    this.addExperience(+args[1]);
-                    break;
-                case 'suicide':
-                    this.death();
-                    break;
-                case 'givehp':
-                    this.addHealth(+args[1]);
-                    break;
-                case 'givemp':
-                    this.addMana(+args[1]);
-                    break;
+        console.log(argstr);
+        if(argstr !== '') {
+            const args = argstr.split(' ');
+            this.log(argstr);
+            if (this.creatingWorld) {
+                let name = args[0];
+                let seed = args[1];
+                this.worldCreation(name, (seed || undefined), undefined);
+            }
+            else if (this.loadingWorld) {
+                this.loadWorld(argstr);
+            }
+            else {
+                switch (args[0]) {
+                    case 'clear': // Clears the console
+                        this.consoleLog = '';
+                        break;
+                    case 'createworld': // Creates world with give name and (optional) seed
+                        let name = args[1];
+                        let seed = args[2];
+                        this.worldCreation(name, (seed || undefined), undefined);
+                        break;
+                    case 'givexp':
+                        this.addExperience(+args[1]);
+                        break;
+                    case 'suicide':
+                        this.death();
+                        break;
+                    case 'givehp':
+                        this.addHealth(+args[1]);
+                        break;
+                    case 'givemp':
+                        this.addMana(+args[1]);
+                        break;
+                }
             }
         }
-
         this.commandLine.nativeElement.value = '';
     }
 
