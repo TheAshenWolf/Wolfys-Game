@@ -160,6 +160,8 @@ export class GameComponent implements OnInit, OnDestroy {
         left: (this.world.posX * this.tileSizePixels + this.tileSizePixels / 3 * 2) + 'px',
         top: (this.world.posY * this.tileSizePixels + this.tileSizePixels / 3 * 2 + 1) + 'px'
     };
+    baseHealth = 100;
+    baseMana = 50;
     step: boolean = true;
     loadingWorld: boolean = false;
     
@@ -438,8 +440,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public addExperience(amount) {
         this.world.player.stats.experience.total += amount;
-
+        let oldLevel = this.world.player.stats.experience.level;
         this.world.player.stats.experience.level = Math.floor(this.world.player.stats.experience.total / 100) + 1;
+        if (this.world.player.stats.experience.level != oldLevel) {
+            this.leveStatBoost();
+        }
 
         this.world.player.stats.experience.forNextLevel = this.world.player.stats.experience.total - (this.world.player.stats.experience.level -1) * 100;
     }
@@ -519,6 +524,13 @@ export class GameComponent implements OnInit, OnDestroy {
         } else {
             this.world.player.stats.mana.current = mp;
         }
+    }
+
+    public leveStatBoost() {
+        let newHP = this.baseHealth * Math.pow(1.1, this.world.player.stats.experience.level - 1);
+        this.world.player.stats.health.max = Math.floor(newHP);
+        let newMP = this.baseMana * Math.pow(1.1, this.world.player.stats.experience.level - 1);
+        this.world.player.stats.mana.max = Math.floor(newMP);
     }
 
     ngOnDestroy(): void {
