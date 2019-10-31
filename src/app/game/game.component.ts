@@ -35,7 +35,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
                 this.characterSrc = environment.component + 'character/back.png';
-                let y = this.world.relativePosY<= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
+                let y = this.world.relativePosY <= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
                 if (this.safeTile(this.world.posX, this.world.posY - 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY - 1;
                     if (this.world.relativePosY <= 0) {
@@ -164,7 +164,7 @@ export class GameComponent implements OnInit, OnDestroy {
     baseMana = 50;
     step: boolean = true;
     loadingWorld: boolean = false;
-    
+
 
     constructor() { }
 
@@ -197,11 +197,11 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.name = name;
             this.world.seed = seed;
             this.world.posX = 15,
-            this.world.posY = 10,
-            this.world.tileset.tilesetX = 0,
-            this.world.tileset.tilesetY = 0,
-            this.world.relativePosX = 15,
-            this.world.relativePosY = 10
+                this.world.posY = 10,
+                this.world.tileset.tilesetX = 0,
+                this.world.tileset.tilesetY = 0,
+                this.world.relativePosX = 15,
+                this.world.relativePosY = 10
 
 
             this.generateMap();
@@ -219,7 +219,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
-        if(this.world.seed) {
+        if (this.world.seed) {
             this.log(JSON.stringify(this.world));
             this.log('Please, save this somewhere:');
         }
@@ -246,9 +246,9 @@ export class GameComponent implements OnInit, OnDestroy {
             this.loadingWorld = false;
             this.log('World could not be loaded.');
         }
-        
-        
-        
+
+
+
     }
 
     public command(argstr: string): void {
@@ -312,7 +312,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public safeTile(x: number, y: number, biome = this.world.tileset.biome): boolean {
-        if( this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+        if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
             return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].safe;
         }
         return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, biome);
@@ -324,10 +324,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.pattern = new SimplexNoise(this.world.seed.toString());
         this.world.tileset.biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, this.world.tileset.tilesetY) + 1) / 2);
 
-        if(this.world.overrides[this.world.tileset.tilesetX] === undefined) {
+        if (this.world.overrides[this.world.tileset.tilesetX] === undefined) {
             this.world.overrides[this.world.tileset.tilesetX] = {};
         }
-        if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] === undefined) {
+        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] === undefined) {
             this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] = {};
         }
 
@@ -338,8 +338,8 @@ export class GameComponent implements OnInit, OnDestroy {
                 let num = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
 
                 let tile;
-                if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
-                    tile =  this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile];
+                if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+                    tile = this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile];
                 }
                 else {
                     tile = this.tiles[Biomes.getTile(num, this.world.tileset.biome)];
@@ -353,17 +353,17 @@ export class GameComponent implements OnInit, OnDestroy {
         let x = this.world.relativePosX;
         let y = this.world.relativePosY;
 
-        if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
             return null;
         }
         else {
-           let tileNum = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
+            let tileNum = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
             let tile = Biomes.getTile(tileNum, this.world.tileset.biome);
             if (tile == 'herbRed' || tile == 'herbBlue') {
-                if(this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] === undefined) {
+                if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] === undefined) {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
                 }
-                this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = {tile: 'herbCollected', safe: true};
+                this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
                 this.addToInventory(tile);
                 this.addExperience(5);
             }
@@ -371,7 +371,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 return null;
             }
             this.context.drawImage(this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile], x * this.tileSizePixels, y * this.tileSizePixels);
-            
+
         }
     }
 
@@ -395,10 +395,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     private addToInventory(item) {
-        if(this.world.player.inventory.items[item]) {
-            if(this.world.player.inventory.items[item].quantity < 1000) {
+        if (this.world.player.inventory.items[item]) {
+            if (this.world.player.inventory.items[item].quantity < 1000) {
                 this.world.player.inventory.items[item].quantity += 1;
-            } 
+            }
         }
         else {
             this.world.player.inventory.items[item] = Items[item];
@@ -407,34 +407,34 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public getHealthFill() {
         let value = ((this.world.player.stats.health.current / this.world.player.stats.health.max) * 100);
-        if(value == 100){
-            return {'background-color': '#f00'};
+        if (value == 100) {
+            return { 'background-color': '#f00' };
         }
         else {
             let obj = 'linear-gradient(to right, #f00, #f00 ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
-            return {'background-image': obj};
+            return { 'background-image': obj };
         }
     }
 
     public getManaFill() {
         let value = ((this.world.player.stats.mana.current / this.world.player.stats.mana.max) * 100);
-        if(value == 100){
-            return {'background-color': '#00f'};
+        if (value == 100) {
+            return { 'background-color': '#00f' };
         }
         else {
             let obj = 'linear-gradient(to right, #00f, #00f ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
-            return {'background-image': obj};
+            return { 'background-image': obj };
         }
     }
 
     public getExpFill() {
         let value = ((this.world.player.stats.experience.forNextLevel / this.world.player.stats.experience.nextLevelExp) * 100);
-        if(value == 100){
-            return {'background-color': '#ff0'};
+        if (value == 100) {
+            return { 'background-color': '#ff0' };
         }
         else {
             let obj = 'linear-gradient(to right, #ff0, #ff0 ' + value + '%, #aaa ' + value + '%, #aaa 100%)';
-            return {'background-image': obj};
+            return { 'background-image': obj };
         }
     }
 
@@ -446,7 +446,7 @@ export class GameComponent implements OnInit, OnDestroy {
             this.leveStatBoost();
         }
 
-        this.world.player.stats.experience.forNextLevel = this.world.player.stats.experience.total - (this.world.player.stats.experience.level -1) * 100;
+        this.world.player.stats.experience.forNextLevel = this.world.player.stats.experience.total - (this.world.player.stats.experience.level - 1) * 100;
     }
 
     private setDefaultCharacterStats() {
@@ -475,7 +475,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public death() {
-        if(this.world.player.stats.experience.total > 24) {
+        if (this.world.player.stats.experience.total > 24) {
             this.addExperience(-25);
         }
         else {
@@ -488,10 +488,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.world.posY = this.world.spawnPointY;
         this.world.tileset.tilesetX = 0;
         this.world.tileset.tilesetY = 0;
-        this.setCharacterPos(); 
+        this.setCharacterPos();
         this.context = this.canvas.nativeElement.getContext('2d');
         this.context.fillStyle = '#ddd';
-        this.context.fillRect(0,0,this.amountXTiles * this.tileSizePixels, this.amountYTiles * this.tileSizePixels);
+        this.context.fillRect(0, 0, this.amountXTiles * this.tileSizePixels, this.amountYTiles * this.tileSizePixels);
         this.log('You died! You will respawn within 5 seconds.');
         let timeout = setTimeout(() => {
             this.respawn();
@@ -531,6 +531,36 @@ export class GameComponent implements OnInit, OnDestroy {
         this.world.player.stats.health.max = Math.floor(newHP);
         let newMP = this.baseMana * Math.pow(1.1, this.world.player.stats.experience.level - 1);
         this.world.player.stats.mana.max = Math.floor(newMP);
+    }
+
+    public useItem(item) {
+        let itemUsed = false;
+        switch (item) {
+            case 'herbRed':
+                if(this.world.player.stats.health.current == this.world.player.stats.health.max) {
+                    this.log('Your health is full!');
+                }
+                else {
+                    this.addHealth(Math.floor(this.world.player.stats.health.max * 0.1));
+                    itemUsed = true;
+                }
+                break;
+            case 'herbBlue':
+                    if(this.world.player.stats.mana.current == this.world.player.stats.mana.max) {
+                        this.log('Your mana is full!');
+                    }
+                    else {
+                        this.addMana(Math.floor(this.world.player.stats.mana.max * 0.1));
+                        itemUsed = true;
+                    }
+                    break;
+        }
+        if (itemUsed) {
+            this.world.player.inventory.items[item].quantity -= 1;
+            if (this.world.player.inventory.items[item].quantity <= 0) {
+                delete this.world.player.inventory.items[item];
+            }
+        }
     }
 
     ngOnDestroy(): void {

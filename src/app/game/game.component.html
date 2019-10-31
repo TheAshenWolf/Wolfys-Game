@@ -63,7 +63,7 @@
             <h3 class="goldFont">Inventory:</h3>
             <div id="inventory">
                 
-                <div class="invIcon" *ngFor="let item of getItems()">
+                <div class="invIcon" *ngFor="let item of getItems()" (click)="useItem(item)">
                     <div class="itemIcon">
                         <img src="{{world.player.inventory.items[item].icon}}" [alt]="world.player.inventory.items[item].name">
                     </div>
