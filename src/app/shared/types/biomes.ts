@@ -16,7 +16,8 @@ export function getTile(num, biome) {
         else if (num < 0.42) tile = 'grass2';
         else if (num < 0.57) tile = 'grass3';
         else if (num < 0.6) tile = 'rock';
-        else tile = 'tree';
+        else if (num < 0.97) tile = 'tree';
+        else tile = 'thorns';
     }
     else { // plains
         if (num < 0.05) tile = 'lake';
@@ -41,7 +42,8 @@ export function getSafeTile(num, biome) {
         else if (num < 0.42) return true;
         else if (num < 0.57) return true;
         else if (num < 0.6) return false;
-        else return false;
+        else if (num < 0.97) return false;
+        else return true;
     }
     else { // plains
         if (num < 0.05) return false;

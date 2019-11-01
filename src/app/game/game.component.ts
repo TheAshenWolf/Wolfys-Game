@@ -29,6 +29,7 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('herbRed', { static: true }) tileHerbRed;
     @ViewChild('herbBlue', { static: true }) tileHerbBlue;
     @ViewChild('herbCollected', { static: true }) tileHerbCollected;
+    @ViewChild('thorns', { static: true }) tileThorns;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent) {
@@ -38,6 +39,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 let y = this.world.relativePosY <= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
                 if (this.safeTile(this.world.posX, this.world.posY - 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY - 1;
+
+                    let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
+                    let biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2)
+                    if(Biomes.getTile(num, biome) == 'thorns') {
+                        this.addHealth(-this.world.player.stats.health.max / 20);
+                    }
                     if (this.world.relativePosY <= 0) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY - 1;
                         this.world.relativePosY = this.amountYTiles - 1;
@@ -50,6 +57,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.characterSrc = environment.component + 'character/front.png';
                 if (this.safeTile(this.world.posX, this.world.posY + 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
                     this.world.posY = this.world.posY + 1;
+
+                    let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
+                    let biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2)
+                    if(Biomes.getTile(num, biome) == 'thorns') {
+                        this.addHealth(-this.world.player.stats.health.max / 20);
+                    }
                     if (this.world.relativePosY >= this.amountYTiles - 1) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY + 1;
                         this.world.relativePosY = 0;
@@ -67,6 +80,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 let x = this.world.relativePosX <= 0 ? this.world.tileset.tilesetX - 1 : this.world.tileset.tilesetX;
                 if (this.safeTile(this.world.posX - 1, this.world.posY, Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2))) {
                     this.world.posX = this.world.posX - 1;
+
+                    let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
+                    let biome = Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2)
+                    if(Biomes.getTile(num, biome) == 'thorns') {
+                        this.addHealth(-this.world.player.stats.health.max / 20);
+                    }
                     if (this.world.relativePosX <= 0) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX - 1;
                         this.world.relativePosX = this.amountXTiles - 1;
@@ -85,6 +104,12 @@ export class GameComponent implements OnInit, OnDestroy {
                 let x = this.world.relativePosX >= this.amountXTiles - 1 ? this.world.tileset.tilesetX + 1 : this.world.tileset.tilesetX;
                 if (this.safeTile(this.world.posX + 1, this.world.posY, Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2))) {
                     this.world.posX = this.world.posX + 1;
+
+                    let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
+                    let biome = Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2)
+                    if(Biomes.getTile(num, biome) == 'thorns') {
+                        this.addHealth(-this.world.player.stats.health.max / 20);
+                    }
                     if (this.world.relativePosX >= this.amountXTiles - 1) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX + 1;
                         this.world.relativePosX = 0;
@@ -389,6 +414,7 @@ export class GameComponent implements OnInit, OnDestroy {
             tree: this.tileTree.nativeElement,
             herbCollected: this.tileHerbCollected.nativeElement,
             herbBlue: this.tileHerbBlue.nativeElement,
+            thorns: this.tileThorns.nativeElement,
             cactus: null,
             sand1: null,
             sand2: null,
@@ -404,6 +430,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
         else {
             this.world.player.inventory.items[item] = Items[item];
+            this.world.player.inventory.items[item].quantity = 1;
         }
     }
 
