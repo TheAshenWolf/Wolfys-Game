@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
-import * as Biomes from '../shared/types/biomes';
-import Items from '../shared/types/items';
+import * as Biomes from '../shared/world/biomes';
+import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
 @Component({
     selector: 'app-game',
