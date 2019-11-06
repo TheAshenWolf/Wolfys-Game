@@ -1,14 +1,12 @@
-const entityBehavior = {
-    shy: () => {
-        // running away from a player
-    },
-    sleeping: () => {
-        // staying on a place, until player attacks, then changes to either shy or aggressive
-    },
-    careless: () => {
-        // casually moving around unless attacked, does not mind the player
-    },
-    aggressive: () => {
-        // attacks the player
-    }
+import { environment } from 'src/environments/environment';
+
+export const Bunny = {
+    x: 0,
+    y: 0,
+    health: 50,
+    src: environment.assets + 'entities/bunny-',
+    fileType: '.png',
+    visionRadius: 5,
+    rotation: 'left',
+    entityBehavior: null
 }

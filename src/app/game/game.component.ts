@@ -5,6 +5,7 @@ import * as Biomes from '../shared/world/biomes';
 import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
 import { fireball } from '../shared/spells/fireball';
+import { Bunny } from '../shared/entities/entities';
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
@@ -161,7 +162,8 @@ export class GameComponent implements OnInit, OnDestroy {
             tilesetX: 0,
             tilesetY: 0,
             biome: 'plains',
-            spells: []
+            spells: [],
+            entities: []
         },
         overrides: {
             //tilex: tiley: x: y:{tile:tile, safe:bool}
@@ -204,7 +206,74 @@ export class GameComponent implements OnInit, OnDestroy {
     baseMana = 50;
     step: boolean = true;
     loadingWorld: boolean = false;
+    entityBehavior = {
+        shy: (entity, index) => {
+            let interval = 1500;
+            let direction = {x: 0, y: 0};
+                let life = setInterval(
+                () => {
+                    if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
+                        let distX = Math.abs(this.world.relativePosX - entity.x);
+                        let distY = Math.abs(this.world.relativePosY - entity.y);
+                        if(distX < distY) {
+                            direction.x = Math.sign(entity.x - this.world.relativePosX);
+                            if (direction.x < 0) {
+                                entity.rotation = 'left';
+                            }
+                            else {
+                                entity.rotation = 'right';
+                            }
+                        }
+                        else {
+                            direction.y = Math.sign(entity.y - this.world.relativePosY);
+                        }
+                    }
+                    else {
+                        let dir = Math.floor(Math.random() *4);
+                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
 
+                    entity.x += direction.x;
+                    entity.y += direction.y;
+                    let coordX = entity.x * this.tileSizePixels;
+                    let coordY = entity.y * this.tileSizePixels;
+
+                    if(entity.x <= 0 || entity.y <= 0 || entity.x > this.amountXTiles || entity.y > this.amountYTiles) {
+                        entity.health = 0;
+                    }
+                    else {
+                        this.world.tileset.entities[index].position = {
+                            position: 'absolute',
+                            left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                            top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+                        }
+                    }    
+                    
+                    if(entity.health <= 0) {
+                        clearInterval(life);
+                        this.world.tileset.spells[index].position = {
+                            position: 'absolute',
+                            left: '0px',
+                            top: '0px',
+                            display: 'none'
+                        };
+                    }
+                }, interval); 
+            
+        },
+        sleeping: () => {
+            // staying on a place, until player attacks, then changes to either shy or aggressive
+        },
+        careless: () => {
+            // casually moving around unless attacked, does not mind the player
+        },
+        aggressive: () => {
+            // attacks the player
+        }
+    }
 
     constructor() { }
 
@@ -377,6 +446,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
         this.setTiles();
         this.world.tileset.spells = [];
+        this.world.tileset.entities = [];
+        if (Math.random() > .5) {
+            this.spawnEntity(Bunny, this.entityBehavior.shy);
+        }
 
         for (let x = 0; x < this.amountXTiles; x++) {
             for (let y = 0; y < this.amountYTiles; y++) {
@@ -723,6 +796,31 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
                 break;
         }
+    }
+
+    public spawnEntity(entity, behavior) {
+        entity.x = Math.floor(Math.random() * this.amountXTiles);
+        entity.y = Math.floor(Math.random() * this.amountYTiles);
+        let index = this.world.tileset.spells.length;
+        entity.entityBehavior = behavior;
+        entity.entityBehavior(entity, index);
+        let coordX = entity.x * this.tileSizePixels;
+        let coordY = entity.y * this.tileSizePixels;
+        
+        this.world.tileset.entities.push({
+            src: entity.src + entity.rotation + entity.fileType,
+            position: {
+                position: 'absolute',
+                left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+            }
+        });
+    }
+
+    public distance(x1, y1, x2, y2) {
+        let x = Math.abs(x1 - x2);
+        let y = Math.abs(y1 - y2);
+        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
     }
 
     ngOnDestroy(): void {
