@@ -395,6 +395,16 @@ export class GameComponent implements OnInit, OnDestroy {
                     case 'givemp':
                         this.addMana(+args[1]);
                         break;
+                    case 'fillhp':
+                        this.addHealth(this.world.player.stats.health.max);
+                        break;
+                    case 'fillmp':
+                        this.addMana(this.world.player.stats.mana.max);
+                        break;
+                    case 'tp':
+                        this.world.posX = +args[1];
+                        this.world.posY = +args[2];
+                        break;
                 }
             }
         }
