@@ -646,7 +646,7 @@ export class GameComponent implements OnInit, OnDestroy {
         } else if (hp <= 0) {
             this.death();
         } else {
-            this.world.player.stats.health.current = hp;
+            this.world.player.stats.health.current = Math.floor(hp);
         }
     }
 
@@ -657,7 +657,7 @@ export class GameComponent implements OnInit, OnDestroy {
         } else if (mp <= 0) {
             this.world.player.stats.mana.current = 0;
         } else {
-            this.world.player.stats.mana.current = mp;
+            this.world.player.stats.mana.current = Math.floor(mp);
         }
     }
 
