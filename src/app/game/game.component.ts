@@ -833,6 +833,21 @@ export class GameComponent implements OnInit, OnDestroy {
         return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
     }
 
+    private damageOverTime(damage, time, tick = 1) {
+        damage = Math.floor(damage);
+        let dps = Math.ceil(damage / time);
+        let dot = setInterval(
+            () => {
+                if(time <= 0) {
+                    clearInterval(dot);
+                }
+                else {
+                    time--;
+                    this.addHealth(-dps);
+                }
+            }, tick * 1000);
+    }
+
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
     }
