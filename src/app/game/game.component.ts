@@ -241,7 +241,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     let coordX = entity.x * this.tileSizePixels;
                     let coordY = entity.y * this.tileSizePixels;
 
-                    if(entity.x <= 0 || entity.y <= 0 || entity.x > this.amountXTiles || entity.y > this.amountYTiles) {
+                    if(entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
                         entity.health = 0;
                     }
                     else {
