@@ -254,7 +254,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     
                     if(entity.health <= 0) {
                         clearInterval(life);
-                        this.world.tileset.spells[index].position = {
+                        this.world.tileset.entities[index].position = {
                             position: 'absolute',
                             left: '0px',
                             top: '0px',
