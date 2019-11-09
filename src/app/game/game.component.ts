@@ -5,7 +5,7 @@ import * as Biomes from '../shared/world/biomes';
 import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
 import { fireball } from '../shared/spells/fireball';
-import { Bunny } from '../shared/entities/entities';
+
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
@@ -457,10 +457,12 @@ export class GameComponent implements OnInit, OnDestroy {
         this.setTiles();
         this.world.tileset.spells = [];
         this.world.tileset.entities = [];
-        if (Math.random() > .5) {
-            this.spawnEntity(Bunny, this.entityBehavior.shy);
-        }
 
+        Biomes.entities(this.world.tileset.biome).forEach((entity) => {
+            if (Math.random() > entity.chance) {
+                this.spawnEntity(entity.entity, this.entityBehavior[entity.behavior]);
+            }
+        });
         for (let x = 0; x < this.amountXTiles; x++) {
             for (let y = 0; y < this.amountYTiles; y++) {
                 let num = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;

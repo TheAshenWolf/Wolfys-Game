@@ -1,8 +1,19 @@
+import * as entity from '../entities/entities';
+
 export function getBiome(value) {
     let biome = 'plains';
     if (value < .5) biome = 'forest';
     else biome = 'plains';
     return biome;
+}
+
+export function entities(biome) {
+    switch (biome) {
+        case 'forest':
+            return [{entity: entity.Bunny, chance: 0.5, behavior: 'shy'}];
+        default: // plains
+            return [{entity: entity.Bunny, chance: 0.75, behavior: 'shy'}];      
+    }
 }
 
 export function getTile(num, biome) {
