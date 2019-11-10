@@ -39,8 +39,11 @@
             <img [src]="env.component + 'world/herbBlue.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbBlue>
             <img [src]="env.component + 'world/herbCollected.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbCollected>
             <img [src]="env.component + 'world/thorns.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #thorns>
+            <img [src]="env.component + 'world/ash-grass.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #ash>
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
             <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
+            <img *ngFor="let spell of world.tileset.spells" [src]="spell.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="spell.position">
+            <img *ngFor="let entity of world.tileset.entities" [src]="entity.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="entity.position">
         </div>
     </div>
     <div class="border">

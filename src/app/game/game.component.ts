@@ -4,6 +4,8 @@ import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/world/biomes';
 import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
+import { fireball } from '../shared/spells/fireball';
+
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
@@ -30,11 +32,13 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('herbBlue', { static: true }) tileHerbBlue;
     @ViewChild('herbCollected', { static: true }) tileHerbCollected;
     @ViewChild('thorns', { static: true }) tileThorns;
+    @ViewChild('ash', { static: true }) tileAsh;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent) {
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
+                this.world.player.rotation = 'back';
                 this.characterSrc = environment.component + 'character/back.png';
                 let y = this.world.relativePosY <= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
                 if (this.safeTile(this.world.posX, this.world.posY - 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
@@ -42,9 +46,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
                     let biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2)
-                    if(Biomes.getTile(num, biome) == 'thorns') {
-                        this.addHealth(-this.world.player.stats.health.max / 20);
-                    }
+                    this.harmTile(num, biome);
                     if (this.world.relativePosY <= 0) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY - 1;
                         this.world.relativePosY = this.amountYTiles - 1;
@@ -53,6 +55,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             }
             else if (event.key === 's') {
+                this.world.player.rotation = 'front';
                 let y = this.world.relativePosY >= this.amountYTiles - 1 ? this.world.tileset.tilesetY + 1 : this.world.tileset.tilesetY;
                 this.characterSrc = environment.component + 'character/front.png';
                 if (this.safeTile(this.world.posX, this.world.posY + 1, Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2))) {
@@ -60,9 +63,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
                     let biome = Biomes.getBiome((this.pattern.noise2D(this.world.tileset.tilesetX, y) + 1) / 2)
-                    if(Biomes.getTile(num, biome) == 'thorns') {
-                        this.addHealth(-this.world.player.stats.health.max / 20);
-                    }
+                    this.harmTile(num, biome);
                     if (this.world.relativePosY >= this.amountYTiles - 1) {
                         this.world.tileset.tilesetY = this.world.tileset.tilesetY + 1;
                         this.world.relativePosY = 0;
@@ -71,6 +72,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             }
             else if (event.key === 'a') {
+                this.world.player.rotation = 'left';
                 if (this.step) {
                     this.characterSrc = environment.component + 'character/left-1.png';
                 } else {
@@ -83,9 +85,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
                     let biome = Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2)
-                    if(Biomes.getTile(num, biome) == 'thorns') {
-                        this.addHealth(-this.world.player.stats.health.max / 20);
-                    }
+                    this.harmTile(num, biome);
                     if (this.world.relativePosX <= 0) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX - 1;
                         this.world.relativePosX = this.amountXTiles - 1;
@@ -94,6 +94,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             }
             else if (event.key === 'd') {
+                this.world.player.rotation = 'right';
                 if (this.step) {
                     this.characterSrc = environment.component + 'character/right-1.png';
                 } else {
@@ -107,9 +108,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     let num = (this.pattern.noise2D(this.world.posX, this.world.posY) + 1) / 2;
                     let biome = Biomes.getBiome((this.pattern.noise2D(x, this.world.tileset.tilesetY) + 1) / 2)
-                    if(Biomes.getTile(num, biome) == 'thorns') {
-                        this.addHealth(-this.world.player.stats.health.max / 20);
-                    }
+                    this.harmTile(num, biome);
                     if (this.world.relativePosX >= this.amountXTiles - 1) {
                         this.world.tileset.tilesetX = this.world.tileset.tilesetX + 1;
                         this.world.relativePosX = 0;
@@ -119,6 +118,15 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === ' ') {
                 this.action();
+            }
+            else if (event.key === 'f') {
+                if (this.cooldown === undefined) {
+                    this.cooldown = setTimeout(() => {
+                        this.cast(fireball);
+                        clearTimeout(this.cooldown);
+                        this.cooldown = undefined;
+                    }, 250);
+                }
             }
             event.stopPropagation();
             this.setCharacterPos();
@@ -149,6 +157,8 @@ export class GameComponent implements OnInit, OnDestroy {
             tilesetX: 0,
             tilesetY: 0,
             biome: 'plains',
+            spells: [],
+            entities: []
         },
         overrides: {
             //tilex: tiley: x: y:{tile:tile, safe:bool}
@@ -175,9 +185,11 @@ export class GameComponent implements OnInit, OnDestroy {
                     nextLevelExp: 100,
                     level: 1
                 }
-            }
+            },
+            rotation: 'front'
         }
     }
+    cooldown;
     tiles = {};
     characterSrc = environment.component + 'character/front.png';
     characterPos = {
@@ -189,7 +201,94 @@ export class GameComponent implements OnInit, OnDestroy {
     baseMana = 50;
     step: boolean = true;
     loadingWorld: boolean = false;
+    entityBehavior = {
+        shy: (entity, index) => {
+            let interval = 1500;
+            let direction = {x: 0, y: 0};
+            this.world.tileset.entities[index].life = setInterval(
+                () => {
+                    if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
+                        let distX = Math.abs(this.world.relativePosX - entity.x);
+                        let distY = Math.abs(this.world.relativePosY - entity.y);
+                            direction.x = Math.sign(entity.x - this.world.relativePosX);
+                            direction.y = Math.sign(entity.y - this.world.relativePosY);
+                            if (direction.x < 0) {
+                                entity.rotation = 'left';
+                            }
+                            else {
+                                entity.rotation = 'right';
+                            }
+                            if (direction.y < 0) {
+                                entity.rotation = 'back';
+                            }
+                            else {
+                                entity.rotation = 'front';
+                            }
+                        }
+                        
+                    else {
+                        let dir = Math.floor(Math.random() *4);
+                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
 
+                    let tries = 0;
+                    while (!this.safeTile(entity.x + this.world.tileset.tilesetX * this.amountXTiles + direction.x, entity.y + this.world.tileset.tilesetY * this.amountYTiles + direction.y, this.world.tileset.biome) && tries < 8) {
+                        tries++;
+                        let dir = Math.floor(Math.random() *4);
+                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
+
+                    if( tries >= 8) {
+                        entity.health = 0;
+                    }
+                    else {
+                        entity.x += direction.x;
+                        entity.y += direction.y;
+                    }
+                    
+                    let coordX = entity.x * this.tileSizePixels;
+                    let coordY = entity.y * this.tileSizePixels;
+
+                    if(entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
+                        entity.health = 0;
+                    }
+                    else {
+                        this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
+                        this.world.tileset.entities[index].position = {
+                            position: 'absolute',
+                            left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                            top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+                        }
+                    }    
+                    
+                    if(entity.health <= 0) {
+                        clearInterval(this.world.tileset.entities[index].life);
+                        this.world.tileset.entities[index].position = {
+                            position: 'absolute',
+                            left: '0px',
+                            top: '0px',
+                            display: 'none'
+                        };
+                    }
+                }, interval); 
+            
+        },
+        sleeping: () => {
+            // staying on a place, until player attacks, then changes to either shy or aggressive
+        },
+        careless: () => {
+            // casually moving around unless attacked, does not mind the player
+        },
+        aggressive: () => {
+            // attacks the player
+        }
+    }
 
     constructor() { }
 
@@ -245,6 +344,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if (this.world.seed) {
+            //this.clearMemory();
             this.log(JSON.stringify(this.world));
             this.log('Please, save this somewhere:');
         }
@@ -262,6 +362,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.log('Loading world...');
         try {
             this.world = JSON.parse(str.trim());
+            this.world.tileset.spells = [];
             this.setCharacterPos();
             this.generateMap();
             this.loadingWorld = false;
@@ -271,14 +372,10 @@ export class GameComponent implements OnInit, OnDestroy {
             this.loadingWorld = false;
             this.log('World could not be loaded.');
         }
-
-
-
     }
 
     public command(argstr: string): void {
-        console.log(argstr);
-        if(argstr !== '') {
+        if (argstr !== '') {
             const args = argstr.split(' ');
             this.log(argstr);
             if (this.creatingWorld) {
@@ -311,6 +408,25 @@ export class GameComponent implements OnInit, OnDestroy {
                     case 'givemp':
                         this.addMana(+args[1]);
                         break;
+                    case 'fillhp':
+                        this.addHealth(this.world.player.stats.health.max);
+                        break;
+                    case 'fillmp':
+                        this.addMana(this.world.player.stats.mana.max);
+                        break;
+                    case 'tp':
+                        if(!isNaN(+args[1]) && ! isNaN(+args[2])) {
+                            this.world.posX = +args[1];
+                            this.world.posY = +args[2];
+                            this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
+                            this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
+                            this.generateMap();
+                            this.setCharacterPos();
+                        }
+                        else{
+                            this.log('These coordinates will not work.');
+                        }
+                        break;
                 }
             }
         }
@@ -339,8 +455,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public safeTile(x: number, y: number, biome = this.world.tileset.biome): boolean {
-        if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
-            return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].safe;
+        let relX = x - this.world.tileset.tilesetX * this.amountXTiles;
+        let relY = y - this.world.tileset.tilesetY * this.amountYTiles;
+        if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()][relY.toString()]) {
+            return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()][relY.toString()].safe;
         }
         return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, biome);
     }
@@ -359,7 +477,13 @@ export class GameComponent implements OnInit, OnDestroy {
         }
 
         this.setTiles();
+        this.clearMemory();
 
+        Biomes.entities(this.world.tileset.biome).forEach((entity) => {
+            if (Math.random() > entity.chance) {
+                this.spawnEntity(entity.entity, this.entityBehavior[entity.behavior]);
+            }
+        });
         for (let x = 0; x < this.amountXTiles; x++) {
             for (let y = 0; y < this.amountYTiles; y++) {
                 let num = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
@@ -418,7 +542,8 @@ export class GameComponent implements OnInit, OnDestroy {
             cactus: null,
             sand1: null,
             sand2: null,
-            sand3: null
+            sand3: null,
+            ash: this.tileAsh.nativeElement
         }
     }
 
@@ -470,10 +595,13 @@ export class GameComponent implements OnInit, OnDestroy {
     public addExperience(amount) {
         this.world.player.stats.experience.total += amount;
         let oldLevel = this.world.player.stats.experience.level;
-        this.world.player.stats.experience.level = Math.floor(this.world.player.stats.experience.total / 100) + 1;
-        if (this.world.player.stats.experience.level != oldLevel) {
-            this.leveStatBoost();
+        if ((this.world.player.stats.experience.level < 100) || (amount < 0)) {
+            this.world.player.stats.experience.level = Math.floor(this.world.player.stats.experience.total / 100) + 1;
+            if (this.world.player.stats.experience.level != oldLevel) {
+                this.levelStatBoost();
+            }
         }
+
 
         this.world.player.stats.experience.forNextLevel = this.world.player.stats.experience.total - (this.world.player.stats.experience.level - 1) * 100;
     }
@@ -499,7 +627,8 @@ export class GameComponent implements OnInit, OnDestroy {
                     nextLevelExp: 100,
                     level: 1
                 }
-            }
+            },
+            rotation: 'front'
         }
     }
 
@@ -540,7 +669,7 @@ export class GameComponent implements OnInit, OnDestroy {
         } else if (hp <= 0) {
             this.death();
         } else {
-            this.world.player.stats.health.current = hp;
+            this.world.player.stats.health.current = Math.floor(hp);
         }
     }
 
@@ -551,11 +680,11 @@ export class GameComponent implements OnInit, OnDestroy {
         } else if (mp <= 0) {
             this.world.player.stats.mana.current = 0;
         } else {
-            this.world.player.stats.mana.current = mp;
+            this.world.player.stats.mana.current = Math.floor(mp);
         }
     }
 
-    public leveStatBoost() {
+    public levelStatBoost() {
         let newHP = this.baseHealth * Math.pow(1.1, this.world.player.stats.experience.level - 1);
         this.world.player.stats.health.max = Math.floor(newHP);
         let newMP = this.baseMana * Math.pow(1.1, this.world.player.stats.experience.level - 1);
@@ -566,7 +695,7 @@ export class GameComponent implements OnInit, OnDestroy {
         let itemUsed = false;
         switch (item) {
             case 'herbRed':
-                if(this.world.player.stats.health.current == this.world.player.stats.health.max) {
+                if (this.world.player.stats.health.current == this.world.player.stats.health.max) {
                     this.log('Your health is full!');
                 }
                 else {
@@ -575,14 +704,14 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
                 break;
             case 'herbBlue':
-                    if(this.world.player.stats.mana.current == this.world.player.stats.mana.max) {
-                        this.log('Your mana is full!');
-                    }
-                    else {
-                        this.addMana(Math.floor(this.world.player.stats.mana.max * 0.1));
-                        itemUsed = true;
-                    }
-                    break;
+                if (this.world.player.stats.mana.current == this.world.player.stats.mana.max) {
+                    this.log('Your mana is full!');
+                }
+                else {
+                    this.addMana(Math.floor(this.world.player.stats.mana.max * 0.1));
+                    itemUsed = true;
+                }
+                break;
         }
         if (itemUsed) {
             this.world.player.inventory.items[item].quantity -= 1;
@@ -590,6 +719,170 @@ export class GameComponent implements OnInit, OnDestroy {
                 delete this.world.player.inventory.items[item];
             }
         }
+    }
+
+    public cast(spell) {
+        if (this.world.player.stats.mana.current >= spell.cost) {
+            this.addMana(-spell.cost);
+            if (spell.type == 'projectile') {
+                let spellPosX = (this.world.posX - this.world.tileset.tilesetX * this.amountXTiles);
+                let spellPosY = (this.world.posY - this.world.tileset.tilesetY * this.amountYTiles);
+                let coordX = spellPosX * this.tileSizePixels;
+                let coordY = spellPosY * this.tileSizePixels;
+
+                let direction = { x: 0, y: 0 };
+                switch (this.world.player.rotation) {
+                    case 'front':
+                        direction.y = 1;
+                        break;
+                    case 'back':
+                        direction.y = -1;
+                        break;
+                    case 'left':
+                        direction.x = -1;
+                        break;
+                    case 'right':
+                        direction.x = 1;
+                        break;
+                }
+                let index = this.world.tileset.spells.length;
+                this.world.tileset.spells.push({
+                    src: spell.src + this.world.player.rotation + spell.fileType,
+                    position: {
+                        position: 'absolute',
+                        left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                        top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+                    }
+                });
+                this.world.tileset.spells[index].life = setInterval(() => {
+                    spellPosX += direction.x;
+                    spellPosY += direction.y;
+                    coordX = spellPosX * this.tileSizePixels;
+                    coordY = spellPosY * this.tileSizePixels;
+                    let num = (this.pattern.noise2D(spellPosX + this.amountXTiles * this.world.tileset.tilesetX, spellPosY + this.amountYTiles * this.world.tileset.tilesetY) + 1) / 2;
+                    let safeTile;
+                    if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY]) {
+                        safeTile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].safe;
+                    }
+                    else {
+                        safeTile = Biomes.getSafeTile(num, this.world.tileset.biome);
+                    }
+                    if (spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles || !(safeTile)) {
+                        clearInterval(this.world.tileset.spells[index].life);
+                        this.world.tileset.spells[index].src = spell.endSrc + this.world.player.rotation + spell.fileType;
+                        setTimeout(() => {
+                            this.world.tileset.spells[index].position = {
+                                position: 'absolute',
+                                left: '0px',
+                                top: '0px',
+                                display: 'none'
+                            };
+                        }, 250);
+                        if (!(Biomes.getSafeTile(num, this.world.tileset.biome)) && !(spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles)) {
+                            if (this.world.overrides[this.world.tileset.tilesetX] === undefined) {
+                                this.world.overrides[this.world.tileset.tilesetX] = {};
+                            }
+                            if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] === undefined) {
+                                this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] = {};
+                            }
+                            if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] === undefined) {
+                                this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] = {}
+                            }
+                            this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY] = { tile: 'ash', safe: true };
+                            this.context.drawImage(this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].tile], spellPosX * this.tileSizePixels, spellPosY * this.tileSizePixels);
+                        }
+
+                    }
+                    else {
+                        this.world.tileset.spells[index].position = {
+                            position: 'absolute',
+                            left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                            top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+                        }
+                    }
+
+                }, 100);
+            }
+        }
+        else {
+            this.log('I do not have enough mana to do that.');
+        }
+    }
+
+    public harmTile(num, biome) {
+        let tile;
+        if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][this.world.relativePosX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][this.world.relativePosX][this.world.relativePosY]) {
+            tile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][this.world.relativePosX][this.world.relativePosY].tile;
+        }
+        else {
+            tile = Biomes.getTile(num, biome);
+        }
+
+        switch (tile) {
+            case 'thorns':
+                this.addHealth(-this.world.player.stats.health.max / 20);
+                break;
+            case 'ash':
+                if (Math.random() * 20 < 1) {
+                    this.log('The ash was too hot to walk on!');
+                    this.damageOverTime(-this.world.player.stats.health.max / 5, 5);
+                }
+                break;
+        }
+    }
+
+    public spawnEntity(entity, behavior) {
+        entity.health = entity.healthDefault;
+        entity.x = Math.floor(Math.random() * this.amountXTiles);
+        entity.y = Math.floor(Math.random() * this.amountYTiles);
+        let index = this.world.tileset.entities.length;
+        let coordX = entity.x * this.tileSizePixels;
+        let coordY = entity.y * this.tileSizePixels;
+        
+        this.world.tileset.entities.push({
+            src: entity.src + entity.rotation + entity.fileType,
+            position: {
+                position: 'absolute',
+                left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+            }
+        });
+
+        entity.entityBehavior = behavior;
+        entity.entityBehavior(entity, index);
+    }
+
+    public distance(x1, y1, x2, y2) {
+        let x = Math.abs(x1 - x2);
+        let y = Math.abs(y1 - y2);
+        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+    }
+
+    private damageOverTime(damage, time, tick = 1) {
+        damage = Math.floor(damage);
+        let dps = Math.ceil(damage / time);
+        let dot = setInterval(
+            () => {
+                if(time <= 0) {
+                    clearInterval(dot);
+                }
+                else {
+                    time--;
+                    this.addHealth(-dps);
+                }
+            }, tick * 1000);
+    }
+
+    private clearMemory() {
+        this.world.tileset.spells.forEach(spell => {
+            clearInterval(spell.life);
+        });
+        this.world.tileset.spells = [];
+
+        this.world.tileset.entities.forEach(entity => {
+            clearInterval(entity.life);
+        });
+        this.world.tileset.entities = [];
     }
 
     ngOnDestroy(): void {
