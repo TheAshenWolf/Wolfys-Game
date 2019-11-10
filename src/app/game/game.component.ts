@@ -210,7 +210,7 @@ export class GameComponent implements OnInit, OnDestroy {
         shy: (entity, index) => {
             let interval = 1500;
             let direction = {x: 0, y: 0};
-                let life = setInterval(
+            this.world.tileset.entities[index].life = setInterval(
                 () => {
                     if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
                         let distX = Math.abs(this.world.relativePosX - entity.x);
@@ -253,7 +253,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }    
                     
                     if(entity.health <= 0) {
-                        clearInterval(life);
+                        clearInterval(this.world.tileset.entities[index].life);
                         this.world.tileset.entities[index].position = {
                             position: 'absolute',
                             left: '0px',
@@ -329,6 +329,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if (this.world.seed) {
+            this.clearMemory();
             this.log(JSON.stringify(this.world));
             this.log('Please, save this somewhere:');
         }
@@ -356,9 +357,6 @@ export class GameComponent implements OnInit, OnDestroy {
             this.loadingWorld = false;
             this.log('World could not be loaded.');
         }
-
-
-
     }
 
     public command(argstr: string): void {
@@ -455,8 +453,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
 
         this.setTiles();
-        this.world.tileset.spells = [];
-        this.world.tileset.entities = [];
+        this.clearMemory();
 
         Biomes.entities(this.world.tileset.biome).forEach((entity) => {
             if (Math.random() > entity.chance) {
@@ -733,7 +730,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
                     }
                 });
-                let flight = setInterval(() => {
+                this.world.tileset.spells[index].life = setInterval(() => {
                     spellPosX += direction.x;
                     spellPosY += direction.y;
                     coordX = spellPosX * this.tileSizePixels;
@@ -747,7 +744,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         safeTile = Biomes.getSafeTile(num, this.world.tileset.biome);
                     }
                     if (spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles || !(safeTile)) {
-                        clearInterval(flight);
+                        clearInterval(this.world.tileset.spells[index].life);
                         this.world.tileset.spells[index].src = spell.endSrc + this.world.player.rotation + spell.fileType;
                         setTimeout(() => {
                             this.world.tileset.spells[index].position = {
@@ -804,7 +801,7 @@ export class GameComponent implements OnInit, OnDestroy {
             case 'ash':
                 if (Math.random() * 20 < 1) {
                     this.log('The ash was too hot to walk on!');
-                    this.addHealth(-this.world.player.stats.health.max / 5);
+                    this.damageOverTime(-this.world.player.stats.health.max / 5, 5);
                 }
                 break;
         }
@@ -814,8 +811,6 @@ export class GameComponent implements OnInit, OnDestroy {
         entity.x = Math.floor(Math.random() * this.amountXTiles);
         entity.y = Math.floor(Math.random() * this.amountYTiles);
         let index = this.world.tileset.spells.length;
-        entity.entityBehavior = behavior;
-        entity.entityBehavior(entity, index);
         let coordX = entity.x * this.tileSizePixels;
         let coordY = entity.y * this.tileSizePixels;
         
@@ -827,6 +822,9 @@ export class GameComponent implements OnInit, OnDestroy {
                 top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
             }
         });
+
+        entity.entityBehavior = behavior;
+        entity.entityBehavior(entity, index);
     }
 
     public distance(x1, y1, x2, y2) {
@@ -848,6 +846,18 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.addHealth(-dps);
                 }
             }, tick * 1000);
+    }
+
+    private clearMemory() {
+        this.world.tileset.spells.forEach(spell => {
+            clearInterval(spell.life);
+        });
+        this.world.tileset.spells = [];
+
+        this.world.tileset.entities.forEach(entity => {
+            clearInterval(entity.life);
+        });
+        this.world.tileset.entities = [];
     }
 
     ngOnDestroy(): void {
