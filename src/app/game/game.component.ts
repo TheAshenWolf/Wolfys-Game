@@ -213,21 +213,27 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.tileset.entities[index].life = setInterval(
                 () => {
                     if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
+                        console.log('Player is too close!');
                         let distX = Math.abs(this.world.relativePosX - entity.x);
                         let distY = Math.abs(this.world.relativePosY - entity.y);
-                        if(distX < distY) {
+                        console.log('distance', distX, distY);
                             direction.x = Math.sign(entity.x - this.world.relativePosX);
+                            direction.y = Math.sign(entity.y - this.world.relativePosY);
                             if (direction.x < 0) {
                                 entity.rotation = 'left';
                             }
                             else {
                                 entity.rotation = 'right';
                             }
+                            if (direction.y < 0) {
+                                entity.rotation = 'back';
+                            }
+                            else {
+                                entity.rotation = 'front';
+                            }
+                            console.log(direction);
                         }
-                        else {
-                            direction.y = Math.sign(entity.y - this.world.relativePosY);
-                        }
-                    }
+                        
                     else {
                         let dir = Math.floor(Math.random() *4);
                         const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
@@ -236,15 +242,34 @@ export class GameComponent implements OnInit, OnDestroy {
                         entity.rotation = rotationArray[dir];
                     }
 
-                    entity.x += direction.x;
-                    entity.y += direction.y;
+                    let tries = 0;
+                    while (!this.safeTile(entity.x + this.world.tileset.tilesetX * this.amountXTiles + direction.x, entity.y + this.world.tileset.tilesetY * this.amountYTiles + direction.y, this.world.tileset.biome) && tries < 8) {
+                        console.log('not safe!', tries);
+                        tries++;
+                        let dir = Math.floor(Math.random() *4);
+                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
+
+                    if( tries >= 8) {
+                        entity.health = 0;
+                    }
+                    else {
+                        entity.x += direction.x;
+                        entity.y += direction.y;
+                    }
+                    
                     let coordX = entity.x * this.tileSizePixels;
                     let coordY = entity.y * this.tileSizePixels;
 
                     if(entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
+                        console.log('I am too far', entity);
                         entity.health = 0;
                     }
                     else {
+                        this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
                         this.world.tileset.entities[index].position = {
                             position: 'absolute',
                             left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
@@ -253,6 +278,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }    
                     
                     if(entity.health <= 0) {
+                        console.log('Despawn!', entity.health);
                         clearInterval(this.world.tileset.entities[index].life);
                         this.world.tileset.entities[index].position = {
                             position: 'absolute',
@@ -329,7 +355,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if (this.world.seed) {
-            this.clearMemory();
+            //this.clearMemory();
             this.log(JSON.stringify(this.world));
             this.log('Please, save this somewhere:');
         }
@@ -400,8 +426,17 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.addMana(this.world.player.stats.mana.max);
                         break;
                     case 'tp':
-                        this.world.posX = +args[1];
-                        this.world.posY = +args[2];
+                        if(!isNaN(+args[1]) && ! isNaN(+args[2])) {
+                            this.world.posX = +args[1];
+                            this.world.posY = +args[2];
+                            this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
+                            this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
+                            this.generateMap();
+                            this.setCharacterPos();
+                        }
+                        else{
+                            this.log('These coordinates will not work.');
+                        }
                         break;
                 }
             }
@@ -808,9 +843,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public spawnEntity(entity, behavior) {
+        entity.health = entity.healthDefault;
         entity.x = Math.floor(Math.random() * this.amountXTiles);
         entity.y = Math.floor(Math.random() * this.amountYTiles);
-        let index = this.world.tileset.spells.length;
+        let index = this.world.tileset.entities.length;
         let coordX = entity.x * this.tileSizePixels;
         let coordY = entity.y * this.tileSizePixels;
         
