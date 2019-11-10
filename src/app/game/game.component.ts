@@ -123,15 +123,10 @@ export class GameComponent implements OnInit, OnDestroy {
                 if (this.cooldown === undefined) {
                     this.cooldown = setTimeout(() => {
                         this.cast(fireball);
-                        console.log('in', this.cooldown);
                         clearTimeout(this.cooldown);
                         this.cooldown = undefined;
                     }, 250);
                 }
-                else {
-                    console.log('cooldown');
-                }
-
             }
             event.stopPropagation();
             this.setCharacterPos();
@@ -213,10 +208,8 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.tileset.entities[index].life = setInterval(
                 () => {
                     if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
-                        console.log('Player is too close!');
                         let distX = Math.abs(this.world.relativePosX - entity.x);
                         let distY = Math.abs(this.world.relativePosY - entity.y);
-                        console.log('distance', distX, distY);
                             direction.x = Math.sign(entity.x - this.world.relativePosX);
                             direction.y = Math.sign(entity.y - this.world.relativePosY);
                             if (direction.x < 0) {
@@ -231,7 +224,6 @@ export class GameComponent implements OnInit, OnDestroy {
                             else {
                                 entity.rotation = 'front';
                             }
-                            console.log(direction);
                         }
                         
                     else {
@@ -244,7 +236,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     let tries = 0;
                     while (!this.safeTile(entity.x + this.world.tileset.tilesetX * this.amountXTiles + direction.x, entity.y + this.world.tileset.tilesetY * this.amountYTiles + direction.y, this.world.tileset.biome) && tries < 8) {
-                        console.log('not safe!', tries);
                         tries++;
                         let dir = Math.floor(Math.random() *4);
                         const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
@@ -265,7 +256,6 @@ export class GameComponent implements OnInit, OnDestroy {
                     let coordY = entity.y * this.tileSizePixels;
 
                     if(entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
-                        console.log('I am too far', entity);
                         entity.health = 0;
                     }
                     else {
@@ -278,7 +268,6 @@ export class GameComponent implements OnInit, OnDestroy {
                     }    
                     
                     if(entity.health <= 0) {
-                        console.log('Despawn!', entity.health);
                         clearInterval(this.world.tileset.entities[index].life);
                         this.world.tileset.entities[index].position = {
                             position: 'absolute',
