@@ -825,7 +825,7 @@ export class GameComponent implements OnInit, OnDestroy {
             case 'ash':
                 if (Math.random() * 20 < 1) {
                     this.log('The ash was too hot to walk on!');
-                    this.damageOverTime(-this.world.player.stats.health.max / 5, 5);
+                    this.damageOverTime(this.world.player.stats.health.max / 5, 5);
                 }
                 break;
         }
