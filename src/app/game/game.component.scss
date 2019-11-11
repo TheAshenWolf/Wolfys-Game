@@ -1,3 +1,35 @@
+#device {
+    width: 100vw;
+    height: 100vh;
+    background-color: #666;
+    color: white;
+    display: flex;
+    align-content: space-around;
+    align-items: center;
+    justify-items: flex-start;
+    justify-content: flex-start;
+    z-index: 8192;
+    overflow: hidden;
+
+    span {
+        text-align: center;
+        width: calc(100vw - 2em);
+        padding: 1em;
+    }
+}
+
+#main, #console {
+    display: none;
+}
+
+@media only screen and (min-width: 1200px) and (min-height: 748px) {
+#device {
+    display: none;
+}
+
+#main, #console {
+    display: flex;
+}
 
 *{
     font-family: sans-serif;
@@ -9,11 +41,12 @@
     background-color: #1e133b;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    // justify-content: space-around;
     font-family: sans-serif;
 }
 
 #main {
+   padding-top: 1em;
    display: flex;
    flex-direction: row;
    justify-content: space-around;
@@ -24,13 +57,14 @@
    border-color: gold;
    border-width: 3px;
    height: 542px;
-   width: 438px;
+   width: calc((100% - 782px) / 2);
+   max-width: 350px;
    border-radius: 19px;
 }
 
 #game-menu, #game-windows {
    display: flex;
-   width: 400px;
+   width: calc(100% - 2em);
    height: 504px;
    padding: 16px;
    border-radius: 16px;
@@ -43,6 +77,7 @@
    position: relative;
 }
 
+/* FIXED */
 .canvas-border {
    border-style: outset;
    border-color: gold;
@@ -67,23 +102,29 @@
    border: gold solid 1px;
    background-color: #ddd;
 }
+/* END FIXED */
 
 #console {
-   background-color: #ddd;
-   color: black;
-   font-weight: bold;
-   height: 350px;
-   width: 744px;
-   align-self: center;
+    margin-top: .5em;
+    display: flex;
+    background-color: #ddd;
+    color: black;
+    font-weight: bold;
+    width: 744px;
+    align-self: center;
+    flex-direction: column-reverse;
+    max-height: 25vh;
+    min-height: 25vh;
 }
 
 #log {
-   height: 325px;
    padding-left: 20px;
    padding-right: 20px;
-   overflow: auto;
+   overflow: auto;   
+}
 
-   
+#command {
+    justify-content: center;
 }
 
 #command-line{
@@ -290,4 +331,6 @@ hr {
 
 .goldFont {
     color: gold;
+}
+
 }
