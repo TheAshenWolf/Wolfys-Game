@@ -5,6 +5,8 @@ import * as Biomes from '../shared/world/biomes';
 import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
 import { fireball } from '../shared/spells/fireball';
+import { World } from '../shared/types/world.interface';
+import { setInterval, setTimeout } from 'timers';
 
 @Component({
     selector: 'app-game',
@@ -12,30 +14,23 @@ import { fireball } from '../shared/spells/fireball';
     styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit, OnDestroy {
-    @ViewChild('args', { static: true }) commandLine;
-    @ViewChild('worldName', { static: true }) set contentWorldName(content: ElementRef) {
-        this.worldName = content;
-    }
-    @ViewChild('worldSeed', { static: true }) set contentWorldSeed(content: ElementRef) {
-        this.worldSeed = content;
-    }
-
-    @ViewChild('canvas', { static: true }) canvas;
-    @ViewChild('grass1', { static: true }) tileGrass1;
-    @ViewChild('grass2', { static: true }) tileGrass2;
-    @ViewChild('grass3', { static: true }) tileGrass3;
-    @ViewChild('tree', { static: true }) tileTree;
-    @ViewChild('stump', { static: true }) tileStump;
-    @ViewChild('rock', { static: true }) tileRock;
-    @ViewChild('lake', { static: true }) tileLake;
-    @ViewChild('herbRed', { static: true }) tileHerbRed;
-    @ViewChild('herbBlue', { static: true }) tileHerbBlue;
-    @ViewChild('herbCollected', { static: true }) tileHerbCollected;
-    @ViewChild('thorns', { static: true }) tileThorns;
-    @ViewChild('ash', { static: true }) tileAsh;
+    @ViewChild('args', { static: true }) commandLine: ElementRef;
+    @ViewChild('canvas', { static: true }) canvas: ElementRef;
+    @ViewChild('grass1', { static: true }) tileGrass1: ElementRef;
+    @ViewChild('grass2', { static: true }) tileGrass2: ElementRef;
+    @ViewChild('grass3', { static: true }) tileGrass3: ElementRef;
+    @ViewChild('tree', { static: true }) tileTree: ElementRef;
+    @ViewChild('stump', { static: true }) tileStump: ElementRef;
+    @ViewChild('rock', { static: true }) tileRock: ElementRef;
+    @ViewChild('lake', { static: true }) tileLake: ElementRef;
+    @ViewChild('herbRed', { static: true }) tileHerbRed: ElementRef;
+    @ViewChild('herbBlue', { static: true }) tileHerbBlue: ElementRef;
+    @ViewChild('herbCollected', { static: true }) tileHerbCollected: ElementRef;
+    @ViewChild('thorns', { static: true }) tileThorns: ElementRef;
+    @ViewChild('ash', { static: true }) tileAsh: ElementRef;
 
     @HostListener('document:keypress', ['$event'])
-    movement(event: KeyboardEvent) {
+    movement(event: KeyboardEvent): void {
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
                 this.world.player.rotation = 'back';
@@ -133,20 +128,18 @@ export class GameComponent implements OnInit, OnDestroy {
             event.preventDefault();
         }
     }
-    env;
-    worldName;
-    worldSeed;
-    context;
-    pattern;
+    env: Object;
+    context: any;
+    pattern: SimplexNoise;
     subscription: SubscriptionObject = {};
     consoleLog: string = ``;
     creatingWorld: boolean = false;
-    amountXTiles = 31;
-    amountYTiles = 21;
-    tileSizePixels = 24;
-    canvasWidth = this.amountXTiles * this.tileSizePixels;
-    canvasHeight = this.amountYTiles * this.tileSizePixels;
-    world = {
+    amountXTiles: number = 31;
+    amountYTiles: number = 21;
+    tileSizePixels: number = 24;
+    canvasWidth: number = this.amountXTiles * this.tileSizePixels;
+    canvasHeight: number = this.amountYTiles * this.tileSizePixels;
+    world: World = {
         seed: null,
         name: 'world',
         posX: 15,
@@ -189,7 +182,7 @@ export class GameComponent implements OnInit, OnDestroy {
             rotation: 'front'
         }
     }
-    cooldown;
+    cooldown: any;
     tiles = {};
     characterSrc = environment.component + 'character/front.png';
     characterPos = {
