@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { fireball } from '../shared/spells/fireball';
 import { World } from '../shared/types/world.interface';
 import { setInterval, setTimeout } from 'timers';
+import { Tile } from '../shared/types/tile.interface';
 
 @Component({
     selector: 'app-game',
@@ -453,7 +454,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()][relY.toString()]) {
             return this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][relX.toString()][relY.toString()].safe;
         }
-        return Biomes.getSafeTile((this.pattern.noise2D(x, y) + 1) / 2, biome);
+        return Biomes.getTile((this.pattern.noise2D(x, y) + 1) / 2, biome).safe;
     }
 
     public generateMap() {
@@ -486,7 +487,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     tile = this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()].tile];
                 }
                 else {
-                    tile = this.tiles[Biomes.getTile(num, this.world.tileset.biome)];
+                    tile = this.tiles[Biomes.getTile(num, this.world.tileset.biome).tile];
                 }
                 this.context.drawImage(tile, x * this.tileSizePixels, y * this.tileSizePixels);
             }
@@ -502,7 +503,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
         else {
             let tileNum = (this.pattern.noise2D(x + this.world.tileset.tilesetX * this.amountXTiles, y + this.world.tileset.tilesetY * this.amountYTiles) + 1) / 2;
-            let tile = Biomes.getTile(tileNum, this.world.tileset.biome);
+            let tile = Biomes.getTile(tileNum, this.world.tileset.biome).tile;
             if (tile == 'herbRed' || tile == 'herbBlue') {
                 if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] === undefined) {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
@@ -758,7 +759,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         safeTile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].safe;
                     }
                     else {
-                        safeTile = Biomes.getSafeTile(num, this.world.tileset.biome);
+                        safeTile = Biomes.getTile(num, this.world.tileset.biome).safe;
                     }
                     if (spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles || !(safeTile)) {
                         clearInterval(this.world.tileset.spells[index].life);
@@ -771,7 +772,7 @@ export class GameComponent implements OnInit, OnDestroy {
                                 display: 'none'
                             };
                         }, 250);
-                        if (!(Biomes.getSafeTile(num, this.world.tileset.biome)) && !(spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles)) {
+                        if (!(Biomes.getTile(num, this.world.tileset.biome)).safe && !(spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles)) {
                             if (this.world.overrides[this.world.tileset.tilesetX] === undefined) {
                                 this.world.overrides[this.world.tileset.tilesetX] = {};
                             }
@@ -876,6 +877,22 @@ export class GameComponent implements OnInit, OnDestroy {
             clearInterval(entity.life);
         });
         this.world.tileset.entities = [];
+    }
+
+    private getTile(globalX, globalY): Tile {
+        let tilesetX = Math.floor(globalX / this.amountXTiles);
+        let tilesetY = Math.floor(globalY / this.amountYTiles);
+        let relX = globalX % this.amountXTiles;
+        let relY = globalY % this.amountYTiles;
+        if (this.world.overrides[tilesetX] &&
+            this.world.overrides[tilesetX][tilesetY] && 
+            this.world.overrides[tilesetX][tilesetY][relX] &&
+            this.world.overrides[tilesetX][tilesetY][relX][relY]) {
+                return this.world.overrides[tilesetX][tilesetY][relX][relY];
+        }
+        else {
+            Biomes.getTile((this.pattern.noise2D(globalX, globalY) + 1) / 2, Biomes.getBiome((this.pattern.noise2D(tilesetX, tilesetY) + 1) / 2));
+        }
     }
 
     ngOnDestroy(): void {
