@@ -39,6 +39,7 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('sand2', { static: true }) tileSand2: ElementRef;
     @ViewChild('sand3', { static: true }) tileSand3: ElementRef;
     @ViewChild('smallRocks', { static: true }) tileSmallRocks: ElementRef;
+    @ViewChild('cactus', { static: true }) tileCactus: ElementRef;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent): void {
@@ -539,10 +540,17 @@ export class GameComponent implements OnInit, OnDestroy {
             herbCollected: this.tileHerbCollected.nativeElement,
             herbBlue: this.tileHerbBlue.nativeElement,
             thorns: this.tileThorns.nativeElement,
-            cactus: null,
-            sand1: null,
-            sand2: null,
-            sand3: null,
+            cactus: this.tileCactus.nativeElement,
+            sand1: this.tileSand1.nativeElement,
+            sand2: this.tileSand2.nativeElement,
+            sand3: this.tileSand3.nativeElement,
+            snow1: this.tileSnow1.nativeElement,
+            snow2: this.tileSnow2.nativeElement,
+            snow3: this.tileSnow3.nativeElement,
+            treeSnow: this.tileTreeSnow.nativeElement,
+            pine: this.tilePine.nativeElement,
+            pineSnow: this.tilePineSnow.nativeElement,
+            smallRocks: this.tileSmallRocks.nativeElement,
             ash: this.tileAsh.nativeElement
         }
     }

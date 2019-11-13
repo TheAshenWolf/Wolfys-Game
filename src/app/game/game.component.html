@@ -50,7 +50,8 @@
             <img [src]="env.component + 'world/pine.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #pine>
             <img [src]="env.component + 'world/pine-snow.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #pineSnow>
             <img [src]="env.component + 'world/small-rocks.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #smallRocks>
-
+            <img [src]="env.component + 'world/cactus.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #cactus>
+            
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
             <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
             <img *ngFor="let spell of world.tileset.spells" [src]="spell.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="spell.position">
