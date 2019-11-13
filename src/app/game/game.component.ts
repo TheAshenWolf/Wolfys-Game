@@ -21,6 +21,9 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('grass2', { static: true }) tileGrass2: ElementRef;
     @ViewChild('grass3', { static: true }) tileGrass3: ElementRef;
     @ViewChild('tree', { static: true }) tileTree: ElementRef;
+    @ViewChild('treeSnow', { static: true }) tileTreeSnow: ElementRef;
+    @ViewChild('pine', { static: true }) tilePine: ElementRef;
+    @ViewChild('pineSnow', { static: true }) tilePineSnow: ElementRef;
     @ViewChild('stump', { static: true }) tileStump: ElementRef;
     @ViewChild('rock', { static: true }) tileRock: ElementRef;
     @ViewChild('lake', { static: true }) tileLake: ElementRef;
@@ -29,6 +32,13 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('herbCollected', { static: true }) tileHerbCollected: ElementRef;
     @ViewChild('thorns', { static: true }) tileThorns: ElementRef;
     @ViewChild('ash', { static: true }) tileAsh: ElementRef;
+    @ViewChild('snow1', { static: true }) tileSnow1: ElementRef;
+    @ViewChild('snow2', { static: true }) tileSnow2: ElementRef;
+    @ViewChild('snow3', { static: true }) tileSnow3: ElementRef;
+    @ViewChild('sand1', { static: true }) tileSand1: ElementRef;
+    @ViewChild('sand2', { static: true }) tileSand2: ElementRef;
+    @ViewChild('sand3', { static: true }) tileSand3: ElementRef;
+    @ViewChild('smallRocks', { static: true }) tileSmallRocks: ElementRef;
 
     @HostListener('document:keypress', ['$event'])
     movement(event: KeyboardEvent): void {
@@ -69,11 +79,8 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === 'a') {
                 this.world.player.rotation = 'left';
-                if (this.step) {
-                    this.characterSrc = environment.component + 'character/left-1.png';
-                } else {
-                    this.characterSrc = environment.component + 'character/left-2.png';
-                }
+
+                this.characterSrc = environment.component + 'character/left-' + this.step ? '1.png' : '2.png';
                 this.step = !this.step;
                 let x = this.world.relativePosX <= 0 ? this.world.tileset.tilesetX - 1 : this.world.tileset.tilesetX;
                 if (this.getTile(this.world.posX - 1, this.world.posY).safe) {
@@ -91,11 +98,7 @@ export class GameComponent implements OnInit, OnDestroy {
             }
             else if (event.key === 'd') {
                 this.world.player.rotation = 'right';
-                if (this.step) {
-                    this.characterSrc = environment.component + 'character/right-1.png';
-                } else {
-                    this.characterSrc = environment.component + 'character/right-2.png';
-                }
+                this.characterSrc = environment.component + 'character/right-' + this.step ? '1.png' : '2.png';
                 this.step = !this.step;
 
                 let x = this.world.relativePosX >= this.amountXTiles - 1 ? this.world.tileset.tilesetX + 1 : this.world.tileset.tilesetX;
@@ -123,6 +126,9 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.cooldown = undefined;
                     }, 250);
                 }
+            }
+            else if (event.which === 13 || event.keyCode === 13) { // enter
+                this.command(this.commandLine.nativeElement.value);
             }
             event.stopPropagation();
             this.setCharacterPos();
@@ -541,7 +547,8 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
-    private addToInventory(item) {
+    private addToInventory(Item) {
+        let item = new Item;
         if (this.world.player.inventory.items[item]) {
             if (this.world.player.inventory.items[item].quantity < 1000) {
                 this.world.player.inventory.items[item].quantity += 1;
@@ -715,7 +722,8 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
-    public cast(spell) {
+    public cast(Spell) {
+        let spell = new Spell;
         if (this.world.player.stats.mana.current >= spell.cost) {
             this.addMana(-spell.cost);
             if (spell.type == 'projectile') {
@@ -825,8 +833,8 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
-    public spawnEntity(entity, behavior) {
-        entity.health = entity.healthDefault;
+    public spawnEntity(Entity, behavior) {
+        let entity = new Entity;
         entity.x = Math.floor(Math.random() * this.amountXTiles);
         entity.y = Math.floor(Math.random() * this.amountYTiles);
         let index = this.world.tileset.entities.length;
