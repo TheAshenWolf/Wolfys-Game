@@ -32,6 +32,8 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('herbCollected', { static: true }) tileHerbCollected: ElementRef;
     @ViewChild('thorns', { static: true }) tileThorns: ElementRef;
     @ViewChild('ash', { static: true }) tileAsh: ElementRef;
+    @ViewChild('ashSnow', { static: true }) tileAshSnow: ElementRef;
+    @ViewChild('ashSand', { static: true }) tileAshSand: ElementRef;
     @ViewChild('snow1', { static: true }) tileSnow1: ElementRef;
     @ViewChild('snow2', { static: true }) tileSnow2: ElementRef;
     @ViewChild('snow3', { static: true }) tileSnow3: ElementRef;
@@ -341,12 +343,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
             this.world.name = name;
             this.world.seed = seed;
-            this.world.posX = 15,
-                this.world.posY = 10,
-                this.world.tileset.tilesetX = 0,
-                this.world.tileset.tilesetY = 0,
-                this.world.relativePosX = 15,
-                this.world.relativePosY = 10
+            this.world.posX = 15;
+            this.world.posY = 10;
+            this.world.tileset.tilesetX = 0;
+            this.world.tileset.tilesetY = 0;
+            this.world.relativePosX = 15;
+            this.world.relativePosY = 10;
+            this.world.overrides = [];
 
 
             this.generateMap();
@@ -448,6 +451,14 @@ export class GameComponent implements OnInit, OnDestroy {
                             this.log('These coordinates will not work.');
                         }
                         break;
+                    case 'rtp':
+                            this.world.posX = Math.floor(Math.random()*10000);
+                            this.world.posY = Math.floor(Math.random()*10000);
+                            this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
+                            this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
+                            this.generateMap();
+                            this.setCharacterPos();
+                        break;
                 }
             }
         }
@@ -536,7 +547,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
                 }
                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
-                this.addToInventory(Items[tile]);
+                this.addToInventory(tile);
                 this.addExperience(5);
             }
             else {
@@ -571,20 +582,21 @@ export class GameComponent implements OnInit, OnDestroy {
             pine: this.tilePine.nativeElement,
             pineSnow: this.tilePineSnow.nativeElement,
             smallRocks: this.tileSmallRocks.nativeElement,
-            ash: this.tileAsh.nativeElement
+            ash: this.tileAsh.nativeElement,
+            ashSnow: this.tileAshSnow.nativeElement,
+            ashSand: this.tileAshSand.nativeElement
         }
     }
 
-    private addToInventory(Item) {
-        let item = JSON.parse(JSON.stringify(Item));
+    private addToInventory(item) {
+        let Item = JSON.parse(JSON.stringify(Items[item]));
         if (this.world.player.inventory.items[item]) {
             if (this.world.player.inventory.items[item].quantity < 1000) {
                 this.world.player.inventory.items[item].quantity += 1;
             }
         }
         else {
-            this.world.player.inventory.items[item] = Items[item];
-            this.world.player.inventory.items[item].quantity = 1;
+            this.world.player.inventory.items[item] = Item;
         }
     }
 
@@ -818,7 +830,16 @@ export class GameComponent implements OnInit, OnDestroy {
                             if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] === undefined) {
                                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] = {}
                             }
-                            this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY] = { tile: 'ash', safe: true };
+
+                            let ash = {tile: 'ash', safe: true, harming: true};
+                            if(this.world.tileset.biome == 'desert') {
+                                ash = {tile: 'ashSand', safe: true, harming: true};
+                            }
+                            else if(this.world.tileset.biome == 'tundra' || this.world.tileset.biome == 'taiga') {
+                                ash = {tile: 'ashSnow', safe: true, harming: true};
+                            }
+
+                            this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY] = ash;
                             this.context.drawImage(this.tiles[this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].tile], spellPosX * this.tileSizePixels, spellPosY * this.tileSizePixels);
                         }
 

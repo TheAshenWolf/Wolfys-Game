@@ -4,9 +4,9 @@ import { Tile } from '../types/tile.interface';
 export function getBiome(value): string {
     let biome = 'plains';
     if (value < .15) biome = 'desert';
-    if (value < .45) biome = 'plains';
-    if (value < .75) biome = 'forest';
-    if (value < .85) biome = 'taiga';
+    else if (value < .45) biome = 'plains';
+    else if (value < .75) biome = 'forest';
+    else if (value < .85) biome = 'taiga';
     else biome = 'tundra';
     return biome;
 }
@@ -35,10 +35,10 @@ export function getTile(num, biome) {
         else tile = {tile: 'thorns', safe: true, harming: true};
     }
     else if (biome === 'desert') {
-        if (num < 0.02) tile = {tile: 'rock', safe: false};
-        else if (num < 0.32) tile = {tile: 'sand1', safe: true};
+        /*if (num < 0.02) tile = {tile: 'rock', safe: false};
+        else*/ if (num < 0.32) tile = {tile: 'sand1', safe: true};
         else if (num < 0.62) tile = {tile: 'sand2', safe: true};
-        else if (num < 0.65) tile = {tile: 'smallRocks', safe: true}
+        //else if (num < 0.65) tile = {tile: 'smallRocks', safe: true}
         else if (num < 0.95) tile = {tile: 'sand3', safe: true};
         else tile = {tile: 'cactus', safe: false, harming: true};
     }
