@@ -4,10 +4,10 @@ import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/world/biomes';
 import Items from '../shared/player/items';
 import { environment } from 'src/environments/environment';
-import { fireball } from '../shared/spells/fireball';
+import Spells from '../shared/spells/spells';
 import { World } from '../shared/types/world.interface';
-import { setInterval, setTimeout } from 'timers';
 import { Tile } from '../shared/types/tile.interface';
+import Entities from '../shared/entities/entities';
 
 @Component({
     selector: 'app-game',
@@ -60,6 +60,11 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.generateMap();
                     }
                 }
+                else {
+                    if(this.getTile(this.world.posX, this.world.posY - 1).harming) {
+                        this.addHealth(-1);
+                    }
+                }
             }
             else if (event.key === 's') {
                 this.world.player.rotation = 'front';
@@ -77,11 +82,16 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.generateMap();
                     }
                 }
+                else {
+                    if(this.getTile(this.world.posX, this.world.posY + 1).harming) {
+                        this.addHealth(-1);
+                    }
+                }
             }
             else if (event.key === 'a') {
                 this.world.player.rotation = 'left';
 
-                this.characterSrc = environment.component + 'character/left-' + this.step ? '1.png' : '2.png';
+                this.characterSrc = environment.component + 'character/left-' + (this.step ? '1.png' : '2.png');
                 this.step = !this.step;
                 let x = this.world.relativePosX <= 0 ? this.world.tileset.tilesetX - 1 : this.world.tileset.tilesetX;
                 if (this.getTile(this.world.posX - 1, this.world.posY).safe) {
@@ -96,10 +106,15 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.generateMap();
                     }
                 }
+                else {
+                    if(this.getTile(this.world.posX - 1, this.world.posY).harming) {
+                        this.addHealth(-1);
+                    }
+                }
             }
             else if (event.key === 'd') {
                 this.world.player.rotation = 'right';
-                this.characterSrc = environment.component + 'character/right-' + this.step ? '1.png' : '2.png';
+                this.characterSrc = environment.component + 'character/right-' + (this.step ? '1.png' : '2.png');
                 this.step = !this.step;
 
                 let x = this.world.relativePosX >= this.amountXTiles - 1 ? this.world.tileset.tilesetX + 1 : this.world.tileset.tilesetX;
@@ -115,6 +130,11 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.generateMap();
                     }
                 }
+                else {
+                    if(this.getTile(this.world.posX + 1, this.world.posY).harming) {
+                        this.addHealth(-1);
+                    }
+                }
             }
             else if (event.key === ' ') {
                 this.action();
@@ -122,7 +142,7 @@ export class GameComponent implements OnInit, OnDestroy {
             else if (event.key === 'f') {
                 if (this.cooldown === undefined) {
                     this.cooldown = setTimeout(() => {
-                        this.cast(fireball);
+                        this.cast(Spells['fireball']);
                         clearTimeout(this.cooldown);
                         this.cooldown = undefined;
                     }, 250);
@@ -482,7 +502,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
         Biomes.entities(this.world.tileset.biome).forEach((entity) => {
             if (Math.random() > entity.chance) {
-                this.spawnEntity(entity.entity, this.entityBehavior[entity.behavior]);
+                this.spawnEntity(Entities[entity.entity], this.entityBehavior[entity.behavior]);
             }
         });
         for (let x = 0; x < this.amountXTiles; x++) {
@@ -516,7 +536,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
                 }
                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
-                this.addToInventory(tile);
+                this.addToInventory(Items[tile]);
                 this.addExperience(5);
             }
             else {
@@ -556,7 +576,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     private addToInventory(Item) {
-        let item = new Item;
+        let item = JSON.parse(JSON.stringify(Item));
         if (this.world.player.inventory.items[item]) {
             if (this.world.player.inventory.items[item].quantity < 1000) {
                 this.world.player.inventory.items[item].quantity += 1;
@@ -731,7 +751,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public cast(Spell) {
-        let spell = new Spell;
+        let spell = JSON.parse(JSON.stringify(Spell));
         if (this.world.player.stats.mana.current >= spell.cost) {
             this.addMana(-spell.cost);
             if (spell.type == 'projectile') {
@@ -842,7 +862,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public spawnEntity(Entity, behavior) {
-        let entity = new Entity;
+        let entity = JSON.parse(JSON.stringify(Entity));
         entity.x = Math.floor(Math.random() * this.amountXTiles);
         entity.y = Math.floor(Math.random() * this.amountYTiles);
         let index = this.world.tileset.entities.length;
@@ -907,7 +927,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 return this.world.overrides[tilesetX][tilesetY][relX][relY];
         }
         else {
-            Biomes.getTile((this.pattern.noise2D(globalX, globalY) + 1) / 2, Biomes.getBiome((this.pattern.noise2D(tilesetX, tilesetY) + 1) / 2));
+            return Biomes.getTile((this.pattern.noise2D(globalX, globalY) + 1) / 2, Biomes.getBiome((this.pattern.noise2D(tilesetX, tilesetY) + 1) / 2));
         }
     }
 

@@ -1,4 +1,5 @@
 export interface Tile {
     tile: string,
-    safe: boolean
+    safe: boolean,
+    harming?: boolean
 }
