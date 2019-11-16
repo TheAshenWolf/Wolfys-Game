@@ -9,7 +9,8 @@ const Entities = {
         fileType: '.png',
         visionRadius: 5,
         rotation: 'left',
-        entityBehavior: null
+        entityBehavior: null,
+        expReward: 15
     }
 }
 

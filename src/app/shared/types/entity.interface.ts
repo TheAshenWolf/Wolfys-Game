@@ -1,4 +1,5 @@
 export interface Entity {
+    entity: any,
     src: string,
     position: {
         position: 'absolute',
@@ -6,5 +7,7 @@ export interface Entity {
         top: string,
         display?: string
     },
-    life?: any
+    life?: any,
+    x?: number,
+    y?: number
 }
