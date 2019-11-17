@@ -792,7 +792,8 @@ export class GameComponent implements OnInit, OnDestroy {
                         position: 'absolute',
                         left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
                         top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
-                    }
+                    },
+                    rotation: this.world.player.rotation
                 });
                 this.world.tileset.spells[index].life = setInterval(() => {
                     spellPosX += direction.x;
@@ -824,7 +825,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (spellPosX < 0 || spellPosX >= this.amountXTiles || spellPosY < 0 || spellPosY >= this.amountYTiles || !(safeTile) || entityHit) {
                         clearInterval(this.world.tileset.spells[index].life);
-                        this.world.tileset.spells[index].src = spell.endSrc + this.world.player.rotation + spell.fileType;
+                        this.world.tileset.spells[index].src = spell.endSrc + this.world.tileset.spells[index].rotation + spell.fileType;
                         setTimeout(() => {
                             this.world.tileset.spells[index].position = {
                                 position: 'absolute',

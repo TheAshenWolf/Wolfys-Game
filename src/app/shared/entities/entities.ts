@@ -10,7 +10,8 @@ const Entities = {
         visionRadius: 5,
         rotation: 'left',
         entityBehavior: null,
-        expReward: 15
+        expReward: 15,
+        damage: 0
     }
 }
 

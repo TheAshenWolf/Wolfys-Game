@@ -6,5 +6,6 @@ export interface Spell {
         top: string,
         display?: string
     },
-    life?: any
+    life?: any,
+    rotation: 'front' | 'left' | 'right' | 'back'
 }
