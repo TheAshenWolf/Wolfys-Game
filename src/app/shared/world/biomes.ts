@@ -1,69 +1,69 @@
-import * as entity from '../entities/entities';
+import Entities from '../entities/entities';
+import { Tile } from '../types/tile.interface';
 
-export function getBiome(value) {
+export function getBiome(value): string {
     let biome = 'plains';
-    if (value < .5) biome = 'forest';
-    else biome = 'plains';
+    if (value < .15) biome = 'desert';
+    else if (value < .45) biome = 'plains';
+    else if (value < .75) biome = 'forest';
+    else if (value < .85) biome = 'taiga';
+    else biome = 'tundra';
     return biome;
 }
 
 export function entities(biome) {
     switch (biome) {
         case 'forest':
-            return [{entity: entity.Bunny, chance: 0.5, behavior: 'shy'}];
+            return [{entity: 'bunny', chance: 0.5, behavior: 'shy'}];
         default: // plains
-            return [{entity: entity.Bunny, chance: 0.75, behavior: 'shy'}];      
+            return [{entity: 'bunny', chance: 0.75, behavior: 'shy'}];      
     }
 }
 
 export function getTile(num, biome) {
-    let tile;
-    if (biome == 'forest') {
-        if (num < 0.02) tile = 'lake';
-        else if (num < 0.06) tile = 'stump';
-        else if (num < 0.09) tile = 'herbRed';
-        else if (num < 0.12) tile = 'herbBlue';
-        else if (num < 0.27) tile = 'grass1';
-        else if (num < 0.42) tile = 'grass2';
-        else if (num < 0.57) tile = 'grass3';
-        else if (num < 0.6) tile = 'rock';
-        else if (num < 0.97) tile = 'tree';
-        else tile = 'thorns';
+    let tile: Tile = {tile: 'grass1', safe: true};
+    if (biome === 'forest') {
+        if (num < 0.02) tile = {tile: 'lake', safe: false};
+        else if (num < 0.06) tile = {tile: 'stump', safe: false};
+        else if (num < 0.09) tile = {tile: 'herbRed', safe: true};
+        else if (num < 0.12) tile = {tile: 'herbBlue', safe: true};
+        else if (num < 0.27) tile = {tile: 'grass1', safe: true};
+        else if (num < 0.42) tile = {tile: 'grass2', safe: true};
+        else if (num < 0.57) tile = {tile: 'grass3', safe: true};
+        else if (num < 0.6) tile = {tile: 'rock', safe: false};
+        else if (num < 0.97) tile = {tile: 'tree', safe: false};
+        else tile = {tile: 'thorns', safe: true, harming: true};
+    }
+    else if (biome === 'desert') {
+        /*if (num < 0.02) tile = {tile: 'rock', safe: false};
+        else*/ if (num < 0.32) tile = {tile: 'sand1', safe: true};
+        else if (num < 0.62) tile = {tile: 'sand2', safe: true};
+        //else if (num < 0.65) tile = {tile: 'smallRocks', safe: true}
+        else if (num < 0.95) tile = {tile: 'sand3', safe: true};
+        else tile = {tile: 'cactus', safe: false, harming: true};
+    }
+    else if (biome === 'taiga') {
+        if (num < 0.02) tile = {tile: 'treeSnow', safe: false};
+        else if (num < 0.27) tile = {tile: 'snow1', safe: true};
+        else if (num < 0.52) tile = {tile: 'snow2', safe: true};
+        else if (num < 0.77) tile = {tile: 'snow3', safe: true};
+        else tile = {tile: 'pineSnow', safe: false};
+    }
+    else if (biome === 'tundra') {
+        if (num < 0.32) tile = {tile: 'snow1', safe: true};
+        else if (num < 0.65) tile = {tile: 'snow2', safe: true};
+        else if (num < 0.98) tile = {tile: 'snow3', safe: true};
+        else tile = {tile: 'pineSnow', safe: false};
     }
     else { // plains
-        if (num < 0.05) tile = 'lake';
-        else if (num < 0.1) tile = 'stump';
-        else if (num < 0.13) tile = 'herbRed';
-        else if (num < 0.36) tile = 'grass1';
-        else if (num < 0.62) tile = 'grass2';
-        else if (num < 0.80) tile = 'grass3';
-        else if (num < 0.9) tile = 'rock';
-        else tile = 'tree';
+        if (num < 0.05) tile = {tile: 'lake', safe: false};
+        else if (num < 0.1) tile = {tile: 'stump', safe: false};
+        else if (num < 0.13) tile = {tile: 'herbRed', safe: true};
+        else if (num < 0.36) tile = {tile: 'grass1', safe: true};
+        else if (num < 0.62) tile = {tile: 'grass2', safe: true};
+        else if (num < 0.80) tile = {tile: 'grass3', safe: true};
+        else if (num < 0.9) tile = {tile: 'rock', safe: false};
+        else tile = {tile: 'tree', safe: false};
     }
     return tile;
-}
-
-export function getSafeTile(num, biome) {
-    if (biome == 'forest') {
-        if (num < 0.02) return false;
-        else if (num < 0.06) return false;
-        else if (num < 0.09) return true;
-        else if (num < 0.12) return true;
-        else if (num < 0.27) return true;
-        else if (num < 0.42) return true;
-        else if (num < 0.57) return true;
-        else if (num < 0.6) return false;
-        else if (num < 0.97) return false;
-        else return true;
-    }
-    else { // plains
-        if (num < 0.05) return false;
-        else if (num < 0.1) return false;
-        else if (num < 0.13) return true;
-        else if (num < 0.36) return true;
-        else if (num < 0.62) return true;
-        else if (num < 0.80) return true;
-        else if (num < 0.9) return false;
-        else return false;
-    }
 }

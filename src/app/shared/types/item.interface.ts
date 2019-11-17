@@ -1,10 +1,6 @@
-import { Stats } from "./stats.interface";
-import { Icon } from "./icon.interface";
-
 export interface Item {
-    amount: boolean,
     name: string,
+    quantity: number,
     description: string,
-    stats: Stats,
-    icon: Icon
+    icon: string
 }
