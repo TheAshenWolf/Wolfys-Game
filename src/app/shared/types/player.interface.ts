@@ -1,10 +1,22 @@
-import { Inventory } from "./inventory.interface";
-import { Stats } from "./stats.interface";
+import { Inventory } from './inventory.interface';
 
-export interface Player{
+export interface Player {
     inventory: Inventory,
-    stats: Stats,
-    level: number,
-    xp: number,
-    totalxp: number
+    stats: {
+        health: {
+            max: number,
+            current: number
+        },
+        mana: {
+            max: number,
+            current: number,
+        },
+        experience: {
+            total: number,
+            forNextLevel: number,
+            nextLevelExp: number,
+            level: number
+        }
+    },
+    rotation: 'front' | 'left' | 'right' | 'back'
 }
