@@ -18,7 +18,7 @@
     flex-wrap: wrap;
     overflow-y: auto;
     height: 80vh;
-    width: 20vw;
+    width: 25vw;
     position: relative;
     display: flex;
 
@@ -93,5 +93,11 @@
     }
     .invIcon:hover {
         .item {opacity: 1}
+    }
+}
+
+@media only screen and (max-width: 1230px) and (min-height: 748px) {
+    #inventory {
+        width: 40vw;
     }
 }

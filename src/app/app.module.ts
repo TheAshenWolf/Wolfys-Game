@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { GameComponent, Inventory } from './game/game.component';
+import { GameComponent, Inventory, Map, Console } from './game/game.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -11,7 +11,9 @@ import {MatDialogModule} from '@angular/material/dialog';
     declarations: [
         AppComponent,
         GameComponent,
-        Inventory
+        Inventory,
+        Map,
+        Console
     ],
     imports: [
         BrowserModule,
@@ -25,7 +27,9 @@ import {MatDialogModule} from '@angular/material/dialog';
         AppComponent
     ],
     entryComponents: [
-        Inventory
+        Inventory,
+        Map,
+        Console
     ]
 })
 export class AppModule { }

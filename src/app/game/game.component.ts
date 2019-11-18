@@ -1030,7 +1030,6 @@ export class GameComponent implements OnInit, OnDestroy {
 styleUrls: ['./inventory.scss']
 })
 export class Inventory {
-
     constructor(
         public dialogRef: MatDialogRef<Inventory>,
         @Inject(MAT_DIALOG_DATA) public data) { }
@@ -1038,5 +1037,36 @@ export class Inventory {
     onNoClick(): void {
         this.dialogRef.close();
     }
+}
 
+
+@Component({
+    selector: 'map',
+    template: `<h3>Map</h3>`,
+styleUrls: ['./inventory.scss']
+})
+export class Map {
+    constructor(
+        public dialogRef: MatDialogRef<Map>,
+        @Inject(MAT_DIALOG_DATA) public data) { }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
+}
+
+
+@Component({
+    selector: 'console',
+    template: `<h3>Map</h3>`,
+styleUrls: ['./inventory.scss']
+})
+export class Console {
+    constructor(
+        public dialogRef: MatDialogRef<Console>,
+        @Inject(MAT_DIALOG_DATA) public data) { }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
 }

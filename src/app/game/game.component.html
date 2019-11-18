@@ -1,31 +1,38 @@
 <div id="main">
-    <div class="border">
-        <div id="game-menu">
-            <div class="menu-button" id="create-world" (click)="startWorldCreation()">
-                    <div><span>Create World</span></div>
+    <div id="menu">
+        <div class="border">
+            <div id="game-windows">
+                <div id="status">
+                    <div class="stat" id="health-points" [ngStyle]="getHealthFill()">
+                        <span>HP: </span><span><span id="text-hp-current">{{ world.player.stats.health.current }}</span> / <span id="text-hp-max">{{ world.player.stats.health.max }}</span></span>
+                    </div>
+                    <div class="stat" id="mana-points" [ngStyle]="getManaFill()">
+                        <span>MP: </span><span><span id="text-mp-current">{{ world.player.stats.mana.current }}</span> / <span id="text-mp-max">{{ world.player.stats.mana.max }}</span></span>
+                    </div>
+                    <div class="stat" id="experience-points" [ngStyle]="getExpFill()">
+                        <span>EXP: </span><span><span id="text-xp-current">{{ world.player.stats.experience.forNextLevel }}</span> / <span id="text-xp-max">{{ world.player.stats.experience.nextLevelExp }}</span></span>
+                    </div>
+                    <div class="stat" id="level">
+                        <span>Level: </span><span id="text-level">{{ world.player.stats.experience.level }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="menu-button" (click)="saveWorld()">
-                <span>Save World</span>
+        </div>
+        <div class="border">
+            <div id="game-menu">
+                <div class="menu-button" id="create-world" (click)="startWorldCreation()">
+                        <div><span>Create World</span></div>
+                </div>
+                <div class="menu-button" (click)="saveWorld()">
+                    <span>Save World</span>
+                </div>
+                <div class="menu-button" (click)="startWorldLoading()">
+                    <span>Load World</span>
+                </div>
             </div>
-            <div class="menu-button" (click)="startWorldLoading()">
-                <span>Load World</span>
-            </div>
-            <hr>
-            <div class="menu-info">
-                <span>World:</span><span id="world-name">({{ world.tileset.biome }}) {{ world.name }}</span>
-            </div>
-            <div class="menu-info">
-                <span>Seed:</span><span id="world-seed">{{world.seed}}</span>
-            </div>
-            <div class="menu-info">
-                <span>Position x:</span><span id="position-x">{{world.posX}}</span>
-            </div>
-            <div class="menu-info">
-                <span>Position y:</span><span id="position-y">{{world.posY}}</span>
-            </div>
-
         </div>
     </div>
+    
     <div class="canvas-border">
         <div id="canvas-div" style="position: relative">
             <img [src]="env.component + 'world/grass-1.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass1>
@@ -60,47 +67,6 @@
             <img *ngFor="let entity of world.tileset.entities" [src]="entity.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="entity.position">
         </div>
     </div>
-    <div class="border">
-        <div id="game-windows">
-            <div id="status">
-                <div class="stat" id="health-points" [ngStyle]="getHealthFill()">
-                    <span>HP: </span><span><span id="text-hp-current">{{ world.player.stats.health.current }}</span> / <span id="text-hp-max">{{ world.player.stats.health.max }}</span></span>
-                </div>
-                <div class="stat" id="mana-points" [ngStyle]="getManaFill()">
-                    <span>MP: </span><span><span id="text-mp-current">{{ world.player.stats.mana.current }}</span> / <span id="text-mp-max">{{ world.player.stats.mana.max }}</span></span>
-                </div>
-                <div class="stat" id="experience-points" [ngStyle]="getExpFill()">
-                    <span>EXP: </span><span><span id="text-xp-current">{{ world.player.stats.experience.forNextLevel }}</span> / <span id="text-xp-max">{{ world.player.stats.experience.nextLevelExp }}</span></span>
-                </div>
-                <div class="stat" id="level">
-                    <span>Level: </span><span id="text-level">{{ world.player.stats.experience.level }}</span>
-                </div>
-            </div>
-            <div id="stats">
-            </div>
-            <h3 class="goldFont">Inventory:</h3>
-            <!--<div id="inventory">
-                
-                <div class="invIcon" *ngFor="let item of getItems()" (click)="useItem(item)">
-                    <div class="itemIcon">
-                        <img src="{{world.player.inventory.items[item].icon}}" [alt]="world.player.inventory.items[item].name">
-                    </div>
-                    <div class="itemQuantity">
-                        {{ world.player.inventory.items[item].quantity }}
-                    </div>
-                    <div class="item">
-                        <div class="itemHeading">
-                            <div class="itemName">{{ world.player.inventory.items[item].name }}</div>
-                            <div class="itemQuantity">{{ world.player.inventory.items[item].quantity }}</div>
-                        </div>
-                        <div class="itemDescription">
-                            {{ world.player.inventory.items[item].description }}
-                        </div>
-                    </div>
-                </div>
-            </div>-->
-        </div>
-    </div>
 </div>
 
 <div id="console">
@@ -111,5 +77,20 @@
     </div>
 </div>
 <div id="device">
-    <span>I am really sorry, but this device won't be sufficient. Please, use a device with dimensions of at least 1200x748.</span>
+    <span>I am really sorry, but this device won't be sufficient. Please, use a device with dimensions of at least 1000x748.</span>
 </div>
+
+<!--
+    <div class="menu-info">
+                <span>World:</span><span id="world-name">({{ world.tileset.biome }}) {{ world.name }}</span>
+            </div>
+            <div class="menu-info">
+                <span>Seed:</span><span id="world-seed">{{world.seed}}</span>
+            </div>
+            <div class="menu-info">
+                <span>Position x:</span><span id="position-x">{{world.posX}}</span>
+            </div>
+            <div class="menu-info">
+                <span>Position y:</span><span id="position-y">{{world.posY}}</span>
+            </div>
+-->
