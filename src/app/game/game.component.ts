@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef, Inject } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/world/biomes';
@@ -8,6 +8,7 @@ import Spells from '../shared/spells/spells';
 import { World } from '../shared/types/world.interface';
 import { Tile } from '../shared/types/tile.interface';
 import Entities from '../shared/entities/entities';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-game',
@@ -60,7 +61,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
                 else {
-                    if(this.getTile(this.world.posX, this.world.posY - 1).harming) {
+                    if (this.getTile(this.world.posX, this.world.posY - 1).harming) {
                         this.addHealth(-1);
                     }
                 }
@@ -79,7 +80,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
                 else {
-                    if(this.getTile(this.world.posX, this.world.posY + 1).harming) {
+                    if (this.getTile(this.world.posX, this.world.posY + 1).harming) {
                         this.addHealth(-1);
                     }
                 }
@@ -100,7 +101,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
                 else {
-                    if(this.getTile(this.world.posX - 1, this.world.posY).harming) {
+                    if (this.getTile(this.world.posX - 1, this.world.posY).harming) {
                         this.addHealth(-1);
                     }
                 }
@@ -121,7 +122,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
                 else {
-                    if(this.getTile(this.world.posX + 1, this.world.posY).harming) {
+                    if (this.getTile(this.world.posX + 1, this.world.posY).harming) {
                         this.addHealth(-1);
                     }
                 }
@@ -215,31 +216,31 @@ export class GameComponent implements OnInit, OnDestroy {
     entityBehavior = {
         shy: (entity, index) => {
             let interval = 1500;
-            let direction = {x: 0, y: 0};
+            let direction = { x: 0, y: 0 };
             this.world.tileset.entities[index].life = setInterval(
                 () => {
-                    if(this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
+                    if (this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
                         let distX = Math.abs(this.world.relativePosX - entity.x);
                         let distY = Math.abs(this.world.relativePosY - entity.y);
-                            direction.x = Math.sign(entity.x - this.world.relativePosX);
-                            direction.y = Math.sign(entity.y - this.world.relativePosY);
-                            if (direction.x < 0) {
-                                entity.rotation = 'left';
-                            }
-                            else {
-                                entity.rotation = 'right';
-                            }
-                            if (direction.y < 0) {
-                                entity.rotation = 'back';
-                            }
-                            else {
-                                entity.rotation = 'front';
-                            }
+                        direction.x = Math.sign(entity.x - this.world.relativePosX);
+                        direction.y = Math.sign(entity.y - this.world.relativePosY);
+                        if (direction.x < 0) {
+                            entity.rotation = 'left';
                         }
-                        
+                        else {
+                            entity.rotation = 'right';
+                        }
+                        if (direction.y < 0) {
+                            entity.rotation = 'back';
+                        }
+                        else {
+                            entity.rotation = 'front';
+                        }
+                    }
+
                     else {
-                        let dir = Math.floor(Math.random() *4);
-                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        let dir = Math.floor(Math.random() * 4);
+                        const directionArray = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
                         const rotationArray = ['right', 'left', 'front', 'back'];
                         direction = directionArray[dir];
                         entity.rotation = rotationArray[dir];
@@ -248,25 +249,25 @@ export class GameComponent implements OnInit, OnDestroy {
                     let tries = 0;
                     while (!this.getTile(entity.x + this.world.tileset.tilesetX * this.amountXTiles + direction.x, entity.y + this.world.tileset.tilesetY * this.amountYTiles + direction.y).safe && tries < 8) {
                         tries++;
-                        let dir = Math.floor(Math.random() *4);
-                        const directionArray = [{x: 1, y: 0},{x: -1, y: 0},{x: 0, y: 1},{x: 0, y: -1}];
+                        let dir = Math.floor(Math.random() * 4);
+                        const directionArray = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
                         const rotationArray = ['right', 'left', 'front', 'back'];
                         direction = directionArray[dir];
                         entity.rotation = rotationArray[dir];
                     }
 
-                    if( tries >= 8) {
+                    if (tries >= 8) {
                         entity.health = 0;
                     }
                     else {
                         entity.x += direction.x;
                         entity.y += direction.y;
                     }
-                    
+
                     let coordX = entity.x * this.tileSizePixels;
                     let coordY = entity.y * this.tileSizePixels;
 
-                    if(entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
+                    if (entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
                         entity.health = 0;
                     }
                     else {
@@ -278,9 +279,9 @@ export class GameComponent implements OnInit, OnDestroy {
                         }
                         this.world.tileset.entities[index].x = entity.x;
                         this.world.tileset.entities[index].y = entity.y;
-                    }    
-                    
-                    if(entity.health <= 0) {
+                    }
+
+                    if (entity.health <= 0) {
                         clearInterval(this.world.tileset.entities[index].life);
                         this.world.tileset.entities[index].position = {
                             position: 'absolute',
@@ -289,8 +290,8 @@ export class GameComponent implements OnInit, OnDestroy {
                             display: 'none'
                         };
                     }
-                }, interval); 
-            
+                }, interval);
+
         },
         sleeping: () => {
             // staying on a place, until player attacks, then changes to either shy or aggressive
@@ -303,7 +304,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
-    constructor() { }
+    constructor(public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.env = environment;
@@ -429,7 +430,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.addMana(this.world.player.stats.mana.max);
                         break;
                     case 'tp':
-                        if(!isNaN(+args[1]) && ! isNaN(+args[2])) {
+                        if (!isNaN(+args[1]) && !isNaN(+args[2])) {
                             this.world.posX = +args[1];
                             this.world.posY = +args[2];
                             this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
@@ -437,35 +438,37 @@ export class GameComponent implements OnInit, OnDestroy {
                             this.generateMap();
                             this.setCharacterPos();
                         }
-                        else{
+                        else {
                             this.log('These coordinates will not work.');
                         }
                         break;
                     case 'rtp':
-                            this.world.posX = Math.floor(Math.random()*10000);
-                            this.world.posY = Math.floor(Math.random()*10000);
-                            this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
-                            this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
-                            this.generateMap();
-                            this.setCharacterPos();
+                        this.world.posX = Math.floor(Math.random() * 10000);
+                        this.world.posY = Math.floor(Math.random() * 10000);
+                        this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
+                        this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
+                        this.generateMap();
+                        this.setCharacterPos();
                         break;
                     case 'summon':
-                            let count = +args[2];
-                            if(isNaN(count)) {
-                                count = 1;
-                            }
-                            switch(args[1]) {
-                                case 'Bunny':
-                                    this.log(count == 1 ? 'Spawned a Bunny' : ('Spawned ' + count + ' Bunnies.' ));
-                                    for (let i = 0; i < count; i++) {
-                                        this.spawnEntity(Entities.bunny, this.entityBehavior.shy);
-                                    }                                    
-                                    break;
-                                default:
-                                    this.log('Unknown Entity.');
-                                    break;
-                            }
+                        let count = +args[2];
+                        if (isNaN(count)) {
+                            count = 1;
+                        }
+                        switch (args[1]) {
+                            case 'Bunny':
+                                this.log(count == 1 ? 'Spawned a Bunny' : ('Spawned ' + count + ' Bunnies.'));
+                                for (let i = 0; i < count; i++) {
+                                    this.spawnEntity(Entities.bunny, this.entityBehavior.shy);
+                                }
+                                break;
+                            default:
+                                this.log('Unknown Entity.');
+                                break;
+                        }
                         break;
+                    case 'inventory':
+                        this.openInventory();
                 }
             }
         }
@@ -806,16 +809,16 @@ export class GameComponent implements OnInit, OnDestroy {
                         safeTile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].safe;
                     }
                     else {*/
-                        safeTile = this.getTile(this.toGlobalX(spellPosX), this.toGlobalY(spellPosY)).safe;
+                    safeTile = this.getTile(this.toGlobalX(spellPosX), this.toGlobalY(spellPosY)).safe;
                     //}
                     let entityHit = false;
 
                     for (let i = 0, j = this.world.tileset.entities.length; i < j; i++) {
                         let entity = this.world.tileset.entities[i];
-                        if(this.distance(entity.x, entity.y, spellPosX, spellPosY) === 0) {
+                        if (this.distance(entity.x, entity.y, spellPosX, spellPosY) === 0) {
                             entityHit = true;
                             entity.entity.health -= spell.damage;
-                            if(entity.entity.health <= 0) {
+                            if (entity.entity.health <= 0) {
                                 this.addExperience(entity.entity.expReward);
                                 entity.src = environment.component + '/entities/entity-ash.png';
                             }
@@ -845,12 +848,12 @@ export class GameComponent implements OnInit, OnDestroy {
                                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] = {}
                             }
 
-                            let ash = {tile: 'ash', safe: true, harming: true};
-                            if(this.world.tileset.biome == 'desert') {
-                                ash = {tile: 'ashSand', safe: true, harming: true};
+                            let ash = { tile: 'ash', safe: true, harming: true };
+                            if (this.world.tileset.biome == 'desert') {
+                                ash = { tile: 'ashSand', safe: true, harming: true };
                             }
-                            else if(this.world.tileset.biome == 'tundra' || this.world.tileset.biome == 'taiga') {
-                                ash = {tile: 'ashSnow', safe: true, harming: true};
+                            else if (this.world.tileset.biome == 'tundra' || this.world.tileset.biome == 'taiga') {
+                                ash = { tile: 'ashSnow', safe: true, harming: true };
                             }
 
                             this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY] = ash;
@@ -897,7 +900,7 @@ export class GameComponent implements OnInit, OnDestroy {
         let index = this.world.tileset.entities.length;
         let coordX = entity.x * this.tileSizePixels;
         let coordY = entity.y * this.tileSizePixels;
-        
+
         this.world.tileset.entities.push({
             entity: entity,
             src: entity.src + entity.rotation + entity.fileType,
@@ -917,7 +920,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public distance(x1, y1, x2, y2) {
         let x = Math.abs(x1 - x2);
         let y = Math.abs(y1 - y2);
-        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
 
     private damageOverTime(damage, time, tick = 1) {
@@ -925,7 +928,7 @@ export class GameComponent implements OnInit, OnDestroy {
         let dps = Math.ceil(damage / time);
         let dot = setInterval(
             () => {
-                if(time <= 0) {
+                if (time <= 0) {
                     clearInterval(dot);
                 }
                 else {
@@ -953,10 +956,10 @@ export class GameComponent implements OnInit, OnDestroy {
         let relX = (globalX - this.world.tileset.tilesetX * this.amountXTiles)
         let relY = (globalY - this.world.tileset.tilesetY * this.amountYTiles);
         if (this.world.overrides[tilesetX] &&
-            this.world.overrides[tilesetX][tilesetY] && 
+            this.world.overrides[tilesetX][tilesetY] &&
             this.world.overrides[tilesetX][tilesetY][relX] &&
             this.world.overrides[tilesetX][tilesetY][relX][relY]) {
-                return this.world.overrides[tilesetX][tilesetY][relX][relY];
+            return this.world.overrides[tilesetX][tilesetY][relX][relY];
         }
         else {
             return Biomes.getTile((this.pattern.noise2D(globalX, globalY) + 1) / 2, Biomes.getBiome((this.pattern.noise2D(tilesetX, tilesetY) + 1) / 2));
@@ -971,7 +974,50 @@ export class GameComponent implements OnInit, OnDestroy {
         return y + this.world.tileset.tilesetY * this.amountYTiles;
     }
 
+    public openInventory(): void {
+        const dialogRef = this.dialog.open(Window, {
+            data: this
+        });
+
+        this.subscription.window = dialogRef.afterClosed().subscribe();
+    }
+
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
     }
+}
+
+
+@Component({
+    selector: 'window',
+    template: `<div id="inventory">
+    <div class="invIcon" *ngFor="let item of data.getItems()" (click)="data.useItem(item)">
+        <div class="itemIcon">
+            <img src="{{data.world.player.inventory.items[item].icon}}" [alt]="data.world.player.inventory.items[item].name">
+        </div>
+        <div class="itemQuantity">
+            {{ data.world.player.inventory.items[item].quantity }}
+        </div>
+        <div class="item">
+            <div class="itemHeading">
+                <div class="itemName">{{ data.world.player.inventory.items[item].name }}</div>
+                <div class="itemQuantity">{{ data.world.player.inventory.items[item].quantity }}</div>
+            </div>
+            <div class="itemDescription">
+                {{ data.world.player.inventory.items[item].description }}
+            </div>
+        </div>
+    </div>
+</div>`,
+})
+export class Window {
+
+    constructor(
+        public dialogRef: MatDialogRef<Window>,
+        @Inject(MAT_DIALOG_DATA) public data) { }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
+
 }
