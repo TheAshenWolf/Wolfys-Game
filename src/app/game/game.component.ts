@@ -146,7 +146,7 @@ export class GameComponent implements OnInit, OnDestroy {
             event.preventDefault();
         }
     }
-    env: Object;
+    env: any;
     context: any;
     pattern: SimplexNoise;
     subscription: SubscriptionObject = {};
