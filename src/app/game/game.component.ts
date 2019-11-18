@@ -469,6 +469,10 @@ export class GameComponent implements OnInit, OnDestroy {
                         break;
                     case 'inventory':
                         this.openInventory();
+                        break;
+                    case 'test':
+                        this.test(args[1]);
+                        break;
                 }
             }
         }
@@ -975,11 +979,24 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public openInventory(): void {
-        const dialogRef = this.dialog.open(Window, {
+        const dialogRef = this.dialog.open(Inventory, {
             data: this
         });
 
         this.subscription.window = dialogRef.afterClosed().subscribe();
+    }
+
+    public test(type): void {
+        switch(type) {
+            case 'inventory':
+                this.command('createworld InventoryTest 3778791');
+                this.command('tp 16 8');
+                this.action();
+                this.command('tp 21 8');
+                this.action();
+                this.command('inventory');
+            break;
+        }
     }
 
     ngOnDestroy(): void {
@@ -989,8 +1006,9 @@ export class GameComponent implements OnInit, OnDestroy {
 
 
 @Component({
-    selector: 'window',
-    template: `<div id="inventory">
+    selector: 'inventory',
+    template: `<h3>Inventory</h3>
+<div id="inventory">
     <div class="invIcon" *ngFor="let item of data.getItems()" (click)="data.useItem(item)">
         <div class="itemIcon">
             <img src="{{data.world.player.inventory.items[item].icon}}" [alt]="data.world.player.inventory.items[item].name">
@@ -1009,11 +1027,12 @@ export class GameComponent implements OnInit, OnDestroy {
         </div>
     </div>
 </div>`,
+styleUrls: ['./inventory.scss']
 })
-export class Window {
+export class Inventory {
 
     constructor(
-        public dialogRef: MatDialogRef<Window>,
+        public dialogRef: MatDialogRef<Inventory>,
         @Inject(MAT_DIALOG_DATA) public data) { }
 
     onNoClick(): void {
