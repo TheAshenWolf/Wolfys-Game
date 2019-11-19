@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ElementRef, Inject, AfterViewInit } from '@angular/core';
 import { SOM, SubscriptionObject } from '../som/SubscriptionObject';
 import * as SimplexNoise from 'simplex-noise';
 import * as Biomes from '../shared/world/biomes';
@@ -9,6 +9,7 @@ import { World } from '../shared/types/world.interface';
 import { Tile } from '../shared/types/tile.interface';
 import Entities from '../shared/entities/entities';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import tests from '../shared/tests';
 
 @Component({
     selector: 'app-game',
@@ -472,6 +473,12 @@ export class GameComponent implements OnInit, OnDestroy {
                         break;
                     case 'test':
                         this.test(args[1]);
+                        break;
+                    case 'action':
+                        this.action();
+                        break;
+                    case 'map':
+                        this.openMap();
                         break;
                 }
             }
@@ -983,20 +990,22 @@ export class GameComponent implements OnInit, OnDestroy {
             data: this
         });
 
-        this.subscription.window = dialogRef.afterClosed().subscribe();
+        this.subscription.inventory = dialogRef.afterClosed().subscribe();
+    }
+
+    public openMap(): void {
+        const dialogRef = this.dialog.open(Map, {
+            data: this
+        });
+
+        this.subscription.map = dialogRef.afterClosed().subscribe();
     }
 
     public test(type): void {
-        switch(type) {
-            case 'inventory':
-                this.command('createworld InventoryTest 3778791');
-                this.command('tp 16 8');
-                this.action();
-                this.command('tp 21 8');
-                this.action();
-                this.command('inventory');
-            break;
-        }
+        let commands = tests[type];
+        commands.forEach(command => {
+            this.command(command);
+        });
     }
 
     ngOnDestroy(): void {
@@ -1042,13 +1051,34 @@ export class Inventory {
 
 @Component({
     selector: 'map',
-    template: `<h3>Map</h3>`,
-styleUrls: ['./inventory.scss']
+    template: `<h3>Map</h3>
+<div id="map">
+    <canvas id="mapCanvas" [width]="600" [height]="600" #mapCanvas></canvas>
+</div>
+    `,
+styleUrls: ['./map.scss']
 })
-export class Map {
+export class Map implements AfterViewInit {
+    @ViewChild('mapCanvas', { static: true }) mapCanvas: ElementRef;
     constructor(
         public dialogRef: MatDialogRef<Map>,
         @Inject(MAT_DIALOG_DATA) public data) { }
+
+    ngAfterViewInit() {
+        let context = this.mapCanvas.nativeElement.getContext('2d');
+        const pattern = new SimplexNoise(this.data.world.seed.toString());
+
+        for (let x = 0; x < 25; x++) {
+            for (let y = 0; y < 25; y++) {
+                let num = (pattern.noise2D(x-12 + this.data.world.tileset.tilesetX, y-12 + this.data.world.tileset.tilesetY) + 1) / 2;
+                context.fillStyle = Biomes.getColor(num);
+                context.fillRect((x * 24), (y * 24), 24, 24);
+            }
+        }
+
+        context.fillStyle = '#ff0000';
+        context.fillRect((12 * 24 + 4), (12 * 24 + 4), 16, 16);
+    }
 
     onNoClick(): void {
         this.dialogRef.close();

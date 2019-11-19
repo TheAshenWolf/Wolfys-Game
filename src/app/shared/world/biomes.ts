@@ -11,6 +11,16 @@ export function getBiome(value): string {
     return biome;
 }
 
+export function getColor(value): string {
+    let biome = '#8cde93';
+    if (value < .15) biome = '#f5cc6c';
+    else if (value < .45) biome = '#8cde93';
+    else if (value < .75) biome = '#369137';
+    else if (value < .85) biome = '#59d4d9';
+    else biome = '#bbf0f2';
+    return biome;
+}
+
 export function entities(biome) {
     switch (biome) {
         case 'forest':

@@ -58,15 +58,18 @@
         }
 
         .item {
+            left: inherit;
+            top: inherit;
+            margin-left: 32px;
+            margin-top: 32px;
             z-index: 512;
             color: gold;
             width:200px;
             position: fixed;
-            opacity: 0;
-            //display: none;
+            display: none;
             background-color: #1e133b;
             border: gold 1px solid;
-            overflow: visible;
+            overflow: clip;
 
             .itemHeading {
                 border-bottom: gold 1px solid;
@@ -92,7 +95,7 @@
         }
     }
     .invIcon:hover {
-        .item {opacity: 1}
+        .item {display: block}
     }
 }
 
