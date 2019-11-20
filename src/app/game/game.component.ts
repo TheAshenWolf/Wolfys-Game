@@ -200,7 +200,8 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
             },
             rotation: 'front'
-        }
+        },
+        created: null
     }
     cooldown: any;
     tiles = {};
@@ -342,7 +343,7 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.relativePosX = 15;
             this.world.relativePosY = 10;
             this.world.overrides = [];
-
+            this.world.created = new Date();
 
             this.generateMap();
             this.setDefaultCharacterStats();
@@ -479,6 +480,9 @@ export class GameComponent implements OnInit, OnDestroy {
                         break;
                     case 'map':
                         this.openMap();
+                        break;
+                    case 'statistics':
+                        this.openStatistics();
                         break;
                 }
             }
@@ -1001,6 +1005,14 @@ export class GameComponent implements OnInit, OnDestroy {
         this.subscription.map = dialogRef.afterClosed().subscribe();
     }
 
+    public openStatistics(): void {
+        const dialogRef = this.dialog.open(Statistics, {
+            data: this
+        });
+
+        this.subscription.statistics = dialogRef.afterClosed().subscribe();
+    }
+
     public test(type): void {
         let commands = tests[type];
         commands.forEach(command => {
@@ -1090,11 +1102,12 @@ export class Map implements AfterViewInit {
     selector: 'statistics',
     template: `<h3>Statistics</h3>
 <div id="statistics">
-    <span>World:</span>{{ data.world.name }}
-    <span>Seed:</span>{{ data.world.seed }}
-    <span>Biome:</span>{{ data.world.tileset.biome }}
-    <span>Position:</span> <span>x:</span>{{ data.world.posX }}<span>y:</span>{{ data.world.posY }}
-    <span>Tileset:</span> <span>x:</span>{{ data.world.tileset.tilesetX }}<span>y:</span>{{ data.world.tileset.tilesetY }}
+    <div><span>World: </span>{{ data.world.name }}</div>
+    <div><span>Seed: </span>{{ data.world.seed }}</div>
+    <div><span>Biome: </span>{{ data.world.tileset.biome }}</div>
+    <div><span>Position: </span> <span>x:</span>{{ data.world.posX }}<span>y:</span>{{ data.world.posY }}</div>
+    <div><span>Tileset: </span> <span>x:</span>{{ data.world.tileset.tilesetX }}<span>y:</span>{{ data.world.tileset.tilesetY }}</div>
+    <div><span>World created: </span> {{ getCreated() }}
 </div>`,
 styleUrls: ['./statistics.scss']
 })
@@ -1105,5 +1118,39 @@ export class Statistics {
 
     onNoClick(): void {
         this.dialogRef.close();
+    }
+
+    public getCreated() {
+        let months = ['January', 'February', 'March',
+        'April', 'May', 'June', 'July',
+        'August', 'September', 'October',
+        'November', 'December'];
+        let date = this.data.world.created;
+        let createdAt = 
+            this.number(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() +
+            ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) + 
+            ':' + (date.getMinutes() >= 10 ? date.getMinutes() : '0' + date.getMinutes()) + 
+            ':' + (date.getSeconds() >= 10 ? date.getSeconds() : '0' + date.getSeconds());
+        return createdAt;
+    }
+
+    public number(n) {
+        switch(n) {
+            case (n > 10 && n < 20):
+                return n + 'th';
+                break;
+            case n % 10 == 1:
+                return n + 'st';
+                break;
+            case n % 10 == 2:
+                return n + 'nd';
+                break;
+            case n % 10 == 3:
+                return n + 'rd';
+                break;
+            default:
+                return n + 'th';
+                break;
+        }
     }
 }

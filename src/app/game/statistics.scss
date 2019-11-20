@@ -1,0 +1,32 @@
+:host {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#statistics {
+    background-color: #1e133b;
+    border-color: gold;
+    border-width: 3px;
+    border-style: inset;
+    justify-content: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    height: 80vh;
+    width: 25vw;
+    position: relative;
+    display: flex;
+    color: white;
+    padding: .5em;
+    flex-direction: column;
+}
+span {
+    color: gold;
+    font-weight: bold;
+    margin: 0.25em;
+}
