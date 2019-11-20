@@ -1087,13 +1087,20 @@ export class Map implements AfterViewInit {
 
 
 @Component({
-    selector: 'console',
-    template: `<h3>Map</h3>`,
-styleUrls: ['./inventory.scss']
+    selector: 'statistics',
+    template: `<h3>Statistics</h3>
+<div id="statistics">
+    <span>World:</span>{{ data.world.name }}
+    <span>Seed:</span>{{ data.world.seed }}
+    <span>Biome:</span>{{ data.world.tileset.biome }}
+    <span>Position:</span> <span>x:</span>{{ data.world.posX }}<span>y:</span>{{ data.world.posY }}
+    <span>Tileset:</span> <span>x:</span>{{ data.world.tileset.tilesetX }}<span>y:</span>{{ data.world.tileset.tilesetY }}
+</div>`,
+styleUrls: ['./statistics.scss']
 })
-export class Console {
+export class Statistics {
     constructor(
-        public dialogRef: MatDialogRef<Console>,
+        public dialogRef: MatDialogRef<Statistics>,
         @Inject(MAT_DIALOG_DATA) public data) { }
 
     onNoClick(): void {
