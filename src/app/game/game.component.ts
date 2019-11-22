@@ -221,9 +221,7 @@ export class GameComponent implements OnInit, OnDestroy {
             let direction = { x: 0, y: 0 };
             this.world.tileset.entities[index].life = setInterval(
                 () => {
-                    if (this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y) <= entity.visionRadius) {
-                        let distX = Math.abs(this.world.relativePosX - entity.x);
-                        let distY = Math.abs(this.world.relativePosY - entity.y);
+                    if (this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y)<= entity.visionRadius) {
                         direction.x = Math.sign(entity.x - this.world.relativePosX);
                         direction.y = Math.sign(entity.y - this.world.relativePosY);
                         if (direction.x < 0) {
@@ -239,7 +237,6 @@ export class GameComponent implements OnInit, OnDestroy {
                             entity.rotation = 'front';
                         }
                     }
-
                     else {
                         let dir = Math.floor(Math.random() * 4);
                         const directionArray = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
@@ -301,8 +298,88 @@ export class GameComponent implements OnInit, OnDestroy {
         careless: () => {
             // casually moving around unless attacked, does not mind the player
         },
-        aggressive: () => {
-            // attacks the player
+        aggressive: (entity, index) => {
+            let interval = 1500;
+            let direction = { x: 0, y: 0 };
+            this.world.tileset.entities[index].life = setInterval(
+                () => {
+                    let dist = this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y);
+                    if (dist <= entity.visionRadius && dist >= 2) {
+                        direction.x = -Math.sign(entity.x - this.world.relativePosX);
+                        direction.y = -Math.sign(entity.y - this.world.relativePosY);
+                        if (direction.x < 0) {
+                            entity.rotation = 'left';
+                        }
+                        else {
+                            entity.rotation = 'right';
+                        }
+                        if (direction.y < 0) {
+                            entity.rotation = 'back';
+                        }
+                        else {
+                            entity.rotation = 'front';
+                        }
+                    }
+                    
+                    else if(dist <= 2) {
+                        direction = {x: 0, y: 0};
+                        this.addHealth(-entity.damage);
+                    }
+
+                    else {
+                        let dir = Math.floor(Math.random() * 4);
+                        const directionArray = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
+
+                    let tries = 0;
+                    while (!this.getTile(entity.x + this.world.tileset.tilesetX * this.amountXTiles + direction.x, entity.y + this.world.tileset.tilesetY * this.amountYTiles + direction.y).safe && tries < 8) {
+                        tries++;
+                        let dir = Math.floor(Math.random() * 4);
+                        const directionArray = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+                        const rotationArray = ['right', 'left', 'front', 'back'];
+                        direction = directionArray[dir];
+                        entity.rotation = rotationArray[dir];
+                    }
+
+                    if (tries >= 8) {
+                        entity.health = 0;
+                    }
+                    else {
+                        entity.x += direction.x;
+                        entity.y += direction.y;
+                    }
+
+                    let coordX = entity.x * this.tileSizePixels;
+                    let coordY = entity.y * this.tileSizePixels;
+
+                    if (entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
+                        entity.health = 0;
+                    }
+                    else {
+                        this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
+                        this.world.tileset.entities[index].position = {
+                            position: 'absolute',
+                            left: (coordX + this.tileSizePixels / 3 * 2) + 'px',
+                            top: (coordY + this.tileSizePixels / 3 * 2 + 1) + 'px'
+                        }
+                        this.world.tileset.entities[index].x = entity.x;
+                        this.world.tileset.entities[index].y = entity.y;
+                    }
+
+                    if (entity.health <= 0) {
+                        clearInterval(this.world.tileset.entities[index].life);
+                        this.world.tileset.entities[index].position = {
+                            position: 'absolute',
+                            left: '0px',
+                            top: '0px',
+                            display: 'none'
+                        };
+                    }
+                }, interval);
+
         }
     }
 
@@ -464,6 +541,12 @@ export class GameComponent implements OnInit, OnDestroy {
                                     this.spawnEntity(Entities.bunny, this.entityBehavior.shy);
                                 }
                                 break;
+                            case 'Spider':
+                                this.log(count == 1 ? 'Spawned a Spider' : ('Spawned ' + count + ' Spiders.'));
+                                for (let i = 0; i < count; i++) {
+                                    this.spawnEntity(Entities.spider, this.entityBehavior.aggressive);
+                                }
+                                break;
                             default:
                                 this.log('Unknown Entity.');
                                 break;
@@ -528,9 +611,16 @@ export class GameComponent implements OnInit, OnDestroy {
         this.clearMemory();
 
         Biomes.entities(this.world.tileset.biome).forEach((entity) => {
-            if (Math.random() > entity.chance) {
-                this.spawnEntity(Entities[entity.entity], this.entityBehavior[entity.behavior]);
+            let summonAmount = 1;
+            if(entity.chance > 1) {
+                summonAmount = Math.floor(entity.chance + 1);
             }
+            for (let i = 0; i < summonAmount; i++) {
+                if (Math.random() > (entity.chance % 1)) {
+                    this.spawnEntity(Entities[entity.entity], this.entityBehavior[entity.behavior]);
+                }
+            }
+            
         });
         for (let x = 0; x < this.amountXTiles; x++) {
             for (let y = 0; y < this.amountYTiles; y++) {
@@ -1138,19 +1228,14 @@ export class Statistics {
         switch(n) {
             case (n > 10 && n < 20):
                 return n + 'th';
-                break;
             case n % 10 == 1:
                 return n + 'st';
-                break;
             case n % 10 == 2:
                 return n + 'nd';
-                break;
             case n % 10 == 3:
                 return n + 'rd';
-                break;
             default:
                 return n + 'th';
-                break;
         }
     }
 }

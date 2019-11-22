@@ -23,10 +23,12 @@ export function getColor(value): string {
 
 export function entities(biome) {
     switch (biome) {
+        case 'desert':
+            return [{entity: 'spider', chance: 1.5, behavior: 'aggressive'}];
         case 'forest':
             return [{entity: 'bunny', chance: 0.5, behavior: 'shy'}];
         default: // plains
-            return [{entity: 'bunny', chance: 0.75, behavior: 'shy'}];      
+            return [{entity: 'bunny', chance: 0.75, behavior: 'shy'}];
     }
 }
 
