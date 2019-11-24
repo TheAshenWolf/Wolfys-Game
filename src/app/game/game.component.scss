@@ -19,6 +19,24 @@
     }
 }
 
+#icons {
+    display: flex;
+    width: calc(100% - 2em);
+    padding: 16px;
+    border-radius: 16px;
+    border-style: inset;
+    border-color: gold;
+    border-width: 3px;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    position: relative;
+
+    img {
+        position: relative;
+    }
+}
+
 #console, #main {
     display: none;
 }

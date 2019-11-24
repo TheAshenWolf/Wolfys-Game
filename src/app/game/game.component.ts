@@ -1116,6 +1116,10 @@ export class GameComponent implements OnInit, OnDestroy {
 }
 
 
+
+
+
+
 @Component({
     selector: 'inventory',
     template: `<h3>Inventory</h3>

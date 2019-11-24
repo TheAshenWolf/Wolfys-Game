@@ -35,6 +35,20 @@
                 </div>
             </div>
         </div>
+        <div class="border">
+            <div *ngIf="world.seed; else lockedIcons" id="icons">
+                <img [src]="env.component + 'ui/icon-inventory.png'" alt="inventory" (click)="openInventory()" />
+                <img [src]="env.component + 'ui/icon-map.png'" alt="map" (click)="openMap()" />
+                <img [src]="env.component + 'ui/icon-statistics.png'" alt="statistics" (click)="openStatistics()" />
+            </div>
+            <ng-template #lockedIcons>
+                <div id="icons">
+                    <img [src]="env.component + 'ui/locked-inventory.png'" alt="inventory" />
+                    <img [src]="env.component + 'ui/locked-map.png'" alt="map" />
+                    <img [src]="env.component + 'ui/locked-statistics.png'" alt="statistics" />
+                </div>
+            </ng-template>
+        </div>
     </div>
 
     <div class="canvas-border">
