@@ -117,7 +117,7 @@
 <div id="console">
     <div id="log" [innerHTML]="consoleLog" #log></div>
     <div id="command">
-        <input type="text" id="command-line" #args>
+        <input autocomplete="off" type="text" id="command-line" #args>
         <button id="run-button" value="Run" (click)="command(args.value)">Run</button>
     </div>
 </div>

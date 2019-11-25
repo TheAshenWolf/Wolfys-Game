@@ -46,7 +46,8 @@ export class GameComponent implements OnInit, OnDestroy {
     @ViewChild('cactus', { static: true }) tileCactus: ElementRef;
 
     @HostListener('document:keypress', ['$event'])
-    movement(event: KeyboardEvent): void {
+    handleKeys(event: KeyboardEvent): void {
+        console.log(event.key);
         if (this.commandLine.nativeElement !== document.activeElement) {
             if (event.key === 'w') {
                 this.world.player.rotation = 'back';
@@ -140,14 +141,35 @@ export class GameComponent implements OnInit, OnDestroy {
                     }, 250);
                 }
             }
-            else if (event.which === 13 || event.keyCode === 13) { // enter
-                this.command(this.commandLine.nativeElement.value);
-            }
             event.stopPropagation();
             this.setCharacterPos();
             event.preventDefault();
         }
+
+        if (event.which === 13 || event.keyCode === 13) { // enter
+                this.command(this.commandLine.nativeElement.value);
+                event.stopPropagation();
+                event.preventDefault();
+        }
     }
+
+    @HostListener('document:keydown', ['$event'])
+    handleArrows(event: KeyboardEvent): void {
+        if (event.which === 38 || event.keyCode === 38) { // arrow up
+            this.currentCommand = this.commandLine.nativeElement.value;
+            this.commandLine.nativeElement.value = this.lastCommand;
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        else if (event.which === 40 || event.keyCode === 40) { // arrow up
+            this.commandLine.nativeElement.value = this.currentCommand;
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    }
+
+    lastCommand = '';
+    currentCommand = '';
     env: any;
     context: any;
     pattern: SimplexNoise;
@@ -469,6 +491,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public command(argstr: string): void {
+        this.lastCommand = argstr;
         if (argstr !== '') {
             const args = argstr.split(' ');
             this.log(argstr);
@@ -488,19 +511,24 @@ export class GameComponent implements OnInit, OnDestroy {
                     case 'createworld': // Creates world with give name and (optional) seed
                         let name = args[1];
                         let seed = args[2];
-                        this.worldCreation(name, (seed || undefined), undefined);
+                        try {
+                            this.worldCreation(name, (seed || undefined), undefined);
+                        }
+                        catch {
+                            this.log('This won\'t work.');
+                        }   
                         break;
                     case 'givexp':
-                        this.addExperience(+args[1]);
+                        this.addExperience(+args[1] || 0);
                         break;
                     case 'suicide':
                         this.death();
                         break;
                     case 'givehp':
-                        this.addHealth(+args[1]);
+                        this.addHealth(+args[1] || 0);
                         break;
                     case 'givemp':
-                        this.addMana(+args[1]);
+                        this.addMana(+args[1] || 0);
                         break;
                     case 'fillhp':
                         this.addHealth(this.world.player.stats.health.max);
@@ -522,12 +550,17 @@ export class GameComponent implements OnInit, OnDestroy {
                         }
                         break;
                     case 'rtp':
-                        this.world.posX = Math.floor(Math.random() * 10000);
-                        this.world.posY = Math.floor(Math.random() * 10000);
-                        this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
-                        this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
-                        this.generateMap();
-                        this.setCharacterPos();
+                        try {
+                            this.world.posX = Math.floor(Math.random() * 10000);
+                            this.world.posY = Math.floor(Math.random() * 10000);
+                            this.world.tileset.tilesetX = Math.floor(this.world.posX / this.amountXTiles);
+                            this.world.tileset.tilesetY = Math.floor(this.world.posY / this.amountYTiles);
+                            this.generateMap();
+                            this.setCharacterPos();
+                        }
+                        catch {
+                            this.log('This will not work now.');
+                        }
                         break;
                     case 'summon':
                         let count = +args[2];
@@ -556,7 +589,12 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.openInventory();
                         break;
                     case 'test':
-                        this.test(args[1]);
+                        try {
+                            this.test(args[1]);
+                        }
+                        catch {
+                            this.log('Unknown test.');
+                        }
                         break;
                     case 'action':
                         this.action();
