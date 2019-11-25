@@ -1,104 +1,115 @@
 <div id="main">
-    <div class="border">
-        <div id="game-menu">
-            <div class="menu-button" id="create-world" (click)="startWorldCreation()">
+    <div id="menu">
+        <div class="border">
+            <div id="game-windows">
+                <div id="status">
+                    <div class="stat" id="health-points" [ngStyle]="getHealthFill()">
+                        <span>HP: </span><span><span id="text-hp-current">{{ world.player.stats.health.current }}</span>
+                            / <span id="text-hp-max">{{ world.player.stats.health.max }}</span></span>
+                    </div>
+                    <div class="stat" id="mana-points" [ngStyle]="getManaFill()">
+                        <span>MP: </span><span><span id="text-mp-current">{{ world.player.stats.mana.current }}</span> /
+                            <span id="text-mp-max">{{ world.player.stats.mana.max }}</span></span>
+                    </div>
+                    <div class="stat" id="experience-points" [ngStyle]="getExpFill()">
+                        <span>EXP: </span><span><span
+                                id="text-xp-current">{{ world.player.stats.experience.forNextLevel }}</span> / <span
+                                id="text-xp-max">{{ world.player.stats.experience.nextLevelExp }}</span></span>
+                    </div>
+                    <div class="stat" id="level">
+                        <span>Level: </span><span id="text-level">{{ world.player.stats.experience.level }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border">
+            <div id="game-menu">
+                <div class="menu-button" id="create-world" (click)="startWorldCreation()">
                     <div><span>Create World</span></div>
+                </div>
+                <div class="menu-button" (click)="saveWorld()">
+                    <span>Save World</span>
+                </div>
+                <div class="menu-button" (click)="startWorldLoading()">
+                    <span>Load World</span>
+                </div>
             </div>
-            <div class="menu-button" (click)="saveWorld()">
-                <span>Save World</span>
+        </div>
+        <div class="border">
+            <div *ngIf="world.seed; else lockedIcons" id="icons">
+                <img [src]="env.component + 'ui/icon-inventory.png'" alt="inventory" (click)="openInventory()" />
+                <img [src]="env.component + 'ui/icon-map.png'" alt="map" (click)="openMap()" />
+                <img [src]="env.component + 'ui/icon-statistics.png'" alt="statistics" (click)="openStatistics()" />
             </div>
-            <div class="menu-button" (click)="startWorldLoading()">
-                <span>Load World</span>
-            </div>
-            <hr>
-            <div class="menu-info">
-                <span>World:</span><span id="world-name">({{ world.tileset.biome }}) {{ world.name }}</span>
-            </div>
-            <div class="menu-info">
-                <span>Seed:</span><span id="world-seed">{{world.seed}}</span>
-            </div>
-            <div class="menu-info">
-                <span>Position x:</span><span id="position-x">{{world.posX}}</span>
-            </div>
-            <div class="menu-info">
-                <span>Position y:</span><span id="position-y">{{world.posY}}</span>
-            </div>
-
+            <ng-template #lockedIcons>
+                <div id="icons">
+                    <img [src]="env.component + 'ui/locked-inventory.png'" alt="inventory" />
+                    <img [src]="env.component + 'ui/locked-map.png'" alt="map" />
+                    <img [src]="env.component + 'ui/locked-statistics.png'" alt="statistics" />
+                </div>
+            </ng-template>
         </div>
     </div>
+
     <div class="canvas-border">
         <div id="canvas-div" style="position: relative">
-            <img [src]="env.component + 'world/grass-1.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass1>
-            <img [src]="env.component + 'world/grass-2.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass2>
-            <img [src]="env.component + 'world/grass-3.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #grass3>
-            <img [src]="env.component + 'world/lake.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #lake>
-            <img [src]="env.component + 'world/stump.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #stump>
-            <img [src]="env.component + 'world/rock.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #rock>
-            <img [src]="env.component + 'world/tree.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #tree>
-            <img [src]="env.component + 'world/herbRed.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbRed>
-            <img [src]="env.component + 'world/herbBlue.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbBlue>
-            <img [src]="env.component + 'world/herbCollected.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #herbCollected>
-            <img [src]="env.component + 'world/thorns.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #thorns>
-            <img [src]="env.component + 'world/ash-grass.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #ash>
-            <img [src]="env.component + 'world/ash-snow.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #ashSnow>
-            <img [src]="env.component + 'world/ash-sand.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #ashSand>
-            <img [src]="env.component + 'world/snow-1.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #snow1>
-            <img [src]="env.component + 'world/snow-2.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #snow2>
-            <img [src]="env.component + 'world/snow-3.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #snow3>
-            <img [src]="env.component + 'world/sand-1.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #sand1>
-            <img [src]="env.component + 'world/sand-2.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #sand2>
-            <img [src]="env.component + 'world/sand-3.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #sand3>
-            <img [src]="env.component + 'world/tree-snow.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #treeSnow>
-            <img [src]="env.component + 'world/pine.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #pine>
-            <img [src]="env.component + 'world/pine-snow.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #pineSnow>
-            <img [src]="env.component + 'world/small-rocks.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #smallRocks>
-            <img [src]="env.component + 'world/cactus.png'" style="display:none" [width]="tileSizePixels" [height]="tileSizePixels" #cactus>
-            
+            <img [src]="env.component + 'world/grass-1.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #grass1>
+            <img [src]="env.component + 'world/grass-2.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #grass2>
+            <img [src]="env.component + 'world/grass-3.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #grass3>
+            <img [src]="env.component + 'world/lake.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #lake>
+            <img [src]="env.component + 'world/stump.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #stump>
+            <img [src]="env.component + 'world/rock.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #rock>
+            <img [src]="env.component + 'world/tree.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #tree>
+            <img [src]="env.component + 'world/herbRed.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #herbRed>
+            <img [src]="env.component + 'world/herbBlue.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #herbBlue>
+            <img [src]="env.component + 'world/herbCollected.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #herbCollected>
+            <img [src]="env.component + 'world/thorns.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #thorns>
+            <img [src]="env.component + 'world/ash-grass.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #ash>
+            <img [src]="env.component + 'world/ash-snow.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #ashSnow>
+            <img [src]="env.component + 'world/ash-sand.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #ashSand>
+            <img [src]="env.component + 'world/snow-1.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #snow1>
+            <img [src]="env.component + 'world/snow-2.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #snow2>
+            <img [src]="env.component + 'world/snow-3.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #snow3>
+            <img [src]="env.component + 'world/sand-1.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #sand1>
+            <img [src]="env.component + 'world/sand-2.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #sand2>
+            <img [src]="env.component + 'world/sand-3.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #sand3>
+            <img [src]="env.component + 'world/tree-snow.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #treeSnow>
+            <img [src]="env.component + 'world/pine.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #pine>
+            <img [src]="env.component + 'world/pine-snow.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #pineSnow>
+            <img [src]="env.component + 'world/small-rocks.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #smallRocks>
+            <img [src]="env.component + 'world/cactus.png'" style="display:none" [width]="tileSizePixels"
+                [height]="tileSizePixels" #cactus>
+
             <canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" #canvas></canvas>
             <img [src]="characterSrc" [ngStyle]="characterPos" [width]="tileSizePixels" [height]="tileSizePixels">
-            <img *ngFor="let spell of world.tileset.spells" [src]="spell.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="spell.position">
-            <img *ngFor="let entity of world.tileset.entities" [src]="entity.src" [width]="tileSizePixels" [height]="tileSizePixels" [ngStyle]="entity.position">
-        </div>
-    </div>
-    <div class="border">
-        <div id="game-windows">
-            <div id="status">
-                <div class="stat" id="health-points" [ngStyle]="getHealthFill()">
-                    <span>HP: </span><span><span id="text-hp-current">{{ world.player.stats.health.current }}</span> / <span id="text-hp-max">{{ world.player.stats.health.max }}</span></span>
-                </div>
-                <div class="stat" id="mana-points" [ngStyle]="getManaFill()">
-                    <span>MP: </span><span><span id="text-mp-current">{{ world.player.stats.mana.current }}</span> / <span id="text-mp-max">{{ world.player.stats.mana.max }}</span></span>
-                </div>
-                <div class="stat" id="experience-points" [ngStyle]="getExpFill()">
-                    <span>EXP: </span><span><span id="text-xp-current">{{ world.player.stats.experience.forNextLevel }}</span> / <span id="text-xp-max">{{ world.player.stats.experience.nextLevelExp }}</span></span>
-                </div>
-                <div class="stat" id="level">
-                    <span>Level: </span><span id="text-level">{{ world.player.stats.experience.level }}</span>
-                </div>
-            </div>
-            <div id="stats">
-            </div>
-            <h3 class="goldFont">Inventory:</h3>
-            <div id="inventory">
-                
-                <div class="invIcon" *ngFor="let item of getItems()" (click)="useItem(item)">
-                    <div class="itemIcon">
-                        <img src="{{world.player.inventory.items[item].icon}}" [alt]="world.player.inventory.items[item].name">
-                    </div>
-                    <div class="itemQuantity">
-                        {{ world.player.inventory.items[item].quantity }}
-                    </div>
-                    <div class="item">
-                        <div class="itemHeading">
-                            <div class="itemName">{{ world.player.inventory.items[item].name }}</div>
-                            <div class="itemQuantity">{{ world.player.inventory.items[item].quantity }}</div>
-                        </div>
-                        <div class="itemDescription">
-                            {{ world.player.inventory.items[item].description }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <img *ngFor="let spell of world.tileset.spells" [src]="spell.src" [width]="tileSizePixels"
+                [height]="tileSizePixels" [ngStyle]="spell.position">
+            <img *ngFor="let entity of world.tileset.entities" [src]="entity.src" [width]="tileSizePixels"
+                [height]="tileSizePixels" [ngStyle]="entity.position">
         </div>
     </div>
 </div>
@@ -106,10 +117,11 @@
 <div id="console">
     <div id="log" [innerHTML]="consoleLog" #log></div>
     <div id="command">
-        <input type="text" id="command-line" #args>
+        <input autocomplete="off" type="text" id="command-line" #args>
         <button id="run-button" value="Run" (click)="command(args.value)">Run</button>
     </div>
 </div>
 <div id="device">
-    <span>I am really sorry, but this device won't be sufficient. Please, use a device with dimensions of at least 1200x748.</span>
+    <span>I am really sorry, but this device won't be sufficient. Please, use a device with dimensions of at least
+        1000x748.</span>
 </div>
