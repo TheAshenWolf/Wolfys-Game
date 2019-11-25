@@ -19,5 +19,6 @@ export interface World {
     overrides: any,
     spawnPointX: number,
     spawnPointY: number,
-    player: Player
+    player: Player,
+    created: Date
 }

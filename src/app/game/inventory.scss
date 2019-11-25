@@ -1,0 +1,106 @@
+:host {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#inventory {
+    background-color: #1e133b;
+    border-color: gold;
+    border-width: 3px;
+    border-style: inset;
+    justify-content: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    height: 80vh;
+    width: 25vw;
+    position: relative;
+    display: flex;
+
+    .invIcon{
+        border-color: gold;
+        border-width: 2px;
+        border-style: inset;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 80px;
+        height: 100px;
+        color: gold;
+        margin: .5em;
+
+        .itemIcon {
+            display: flex;
+            justify-content: center;
+            justify-items: center;
+            align-content: space-around;
+            align-items: center;
+            height: 80px;
+
+            img{
+                width: 64px;
+                height:64px;
+            }
+        }
+        .itemQuantity {
+            text-align: center;
+            height: 20px;
+            justify-content: center;
+            justify-items: center;
+            align-content: space-around;
+            align-items: center;
+            position: relative;
+        }
+
+        .item {
+            left: inherit;
+            top: inherit;
+            margin-left: 32px;
+            margin-top: 32px;
+            z-index: 512;
+            color: gold;
+            width:200px;
+            position: fixed;
+            display: none;
+            background-color: #1e133b;
+            border: gold 1px solid;
+            overflow: clip;
+
+            .itemHeading {
+                border-bottom: gold 1px solid;
+                display: flex;
+                flex-direction: row;
+                padding: .25em;
+    
+                .itemName{
+                    text-align: left;
+                    font-weight: bold;
+                    width: 75%;
+                }
+                .itemQuantity{
+                    text-align: right;
+                    width: 25%;
+                }
+            }
+            .itemDescription {
+                text-align: left;
+                padding: .5em;
+                min-height: 80px;
+            }
+        }
+    }
+    .invIcon:hover {
+        .item {display: block}
+    }
+}
+
+@media only screen and (max-width: 1230px) and (min-height: 748px) {
+    #inventory {
+        width: 40vw;
+    }
+}

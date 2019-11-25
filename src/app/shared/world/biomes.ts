@@ -11,12 +11,24 @@ export function getBiome(value): string {
     return biome;
 }
 
+export function getColor(value): string {
+    let biome = '#8cde93';
+    if (value < .15) biome = '#f5cc6c';
+    else if (value < .45) biome = '#8cde93';
+    else if (value < .75) biome = '#369137';
+    else if (value < .85) biome = '#59d4d9';
+    else biome = '#bbf0f2';
+    return biome;
+}
+
 export function entities(biome) {
     switch (biome) {
+        case 'desert':
+            return [{entity: 'spider', chance: 1.5, behavior: 'aggressive'}];
         case 'forest':
             return [{entity: 'bunny', chance: 0.5, behavior: 'shy'}];
         default: // plains
-            return [{entity: 'bunny', chance: 0.75, behavior: 'shy'}];      
+            return [{entity: 'bunny', chance: 0.75, behavior: 'shy'}];
     }
 }
 
