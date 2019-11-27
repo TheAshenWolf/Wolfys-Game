@@ -10,6 +10,8 @@ import { Tile } from '../shared/types/tile.interface';
 import Entities from '../shared/entities/entities';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import tests from '../shared/tests';
+import { Subject } from 'rxjs';
+import { Quest } from '../shared/types/quest.interface';
 
 @Component({
     selector: 'app-game',
@@ -168,6 +170,9 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
+    questline$: Subject<{task: string, target: string}>;
+    currentQuest: Quest;
+
     lastCommand = '';
     currentCommand = '';
     env: any;
@@ -242,6 +247,7 @@ export class GameComponent implements OnInit, OnDestroy {
         shy: (entity, index) => {
             let interval = 1500;
             let direction = { x: 0, y: 0 };
+            let despawned = false;
             this.world.tileset.entities[index].life = setInterval(
                 () => {
                     if (this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y)<= entity.visionRadius) {
@@ -280,6 +286,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (tries >= 8) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         entity.x += direction.x;
@@ -291,6 +298,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
@@ -311,6 +319,10 @@ export class GameComponent implements OnInit, OnDestroy {
                             top: '0px',
                             display: 'none'
                         };
+
+                        if(!despawned) {
+                            this.questline$.next({task: 'kill', target: entity.entity.name});
+                        }
                     }
                 }, interval);
 
@@ -409,6 +421,22 @@ export class GameComponent implements OnInit, OnDestroy {
     constructor(public dialog: MatDialog) { }
 
     ngOnInit(): void {
+        this.questline$ = new Subject();
+        this.subscription.questline = this.questline$.subscribe((questReport) => {
+            if(this.currentQuest) {
+                if(questReport.task === this.currentQuest.task && questReport.target === this.currentQuest.target) {
+                    this.currentQuest.current++;
+
+                    if(this.currentQuest.current >= this.currentQuest.amount) {
+                        this.addExperience(this.currentQuest.reward.xp);
+                        //this.addGold(this.currentQuest.reward.gold);
+                        this.currentQuest = null;
+                    }
+                }
+            }
+        });
+
+
         this.env = environment;
     }
 
@@ -681,7 +709,7 @@ export class GameComponent implements OnInit, OnDestroy {
         let x = this.world.relativePosX;
         let y = this.world.relativePosY;
 
-        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x][y]) {
             return null;
         }
         else {
@@ -692,6 +720,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
                 }
                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
+                this.questline$.next({task: 'collect', target: tile});
                 this.addToInventory(tile);
                 this.addExperience(5);
             }
@@ -951,12 +980,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     coordY = spellPosY * this.tileSizePixels;
                     let num = (this.pattern.noise2D(spellPosX + this.amountXTiles * this.world.tileset.tilesetX, spellPosY + this.amountYTiles * this.world.tileset.tilesetY) + 1) / 2;
                     let safeTile;
-                    /*if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY]) {
-                        safeTile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].safe;
-                    }
-                    else {*/
                     safeTile = this.getTile(this.toGlobalX(spellPosX), this.toGlobalY(spellPosY)).safe;
-                    //}
                     let entityHit = false;
 
                     for (let i = 0, j = this.world.tileset.entities.length; i < j; i++) {
@@ -1151,15 +1175,24 @@ export class GameComponent implements OnInit, OnDestroy {
         });
     }
 
+    public acceptQuest(Quest) {
+        if(this.currentQuest !== null) {
+            this.log('You already have a quest.');
+        } 
+        else {
+            this.currentQuest = JSON.parse(JSON.stringify(Quest));
+        }
+    }
+
+
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
     }
 }
 
-
-
-
-
+// ==========================================================================================================================================================================
+// ==========================================================================================================================================================================
+// ==========================================================================================================================================================================
 
 @Component({
     selector: 'inventory',

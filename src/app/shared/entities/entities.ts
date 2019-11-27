@@ -11,7 +11,8 @@ const Entities = {
         rotation: 'left',
         entityBehavior: null,
         expReward: 15,
-        damage: 0
+        damage: 0,
+        name: 'bunny'
     },
     'spider': {
         x: 0,
@@ -23,7 +24,8 @@ const Entities = {
         rotation: 'left',
         entityBehavior: null,
         expReward: 50,
-        damage: 10
+        damage: 10,
+        name: 'spider'
     }
 }
 
