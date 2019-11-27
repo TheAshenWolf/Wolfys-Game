@@ -48,7 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
     @HostListener('document:keypress', ['$event'])
     handleKeys(event: KeyboardEvent): void {
         console.log(event.key);
-        if (this.commandLine.nativeElement !== document.activeElement) {
+        if (this.commandLine.nativeElement !== document.activeElement && !this.dead) {
             if (event.key === 'w') {
                 this.world.player.rotation = 'back';
                 this.characterSrc = environment.component + 'character/back.png';
@@ -181,6 +181,7 @@ export class GameComponent implements OnInit, OnDestroy {
     tileSizePixels: number = 24;
     canvasWidth: number = this.amountXTiles * this.tileSizePixels;
     canvasHeight: number = this.amountYTiles * this.tileSizePixels;
+    dead: boolean = false;
     world: World = {
         seed: null,
         name: 'world',
@@ -818,6 +819,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public death() {
+        this.dead = true;
         if (this.world.player.stats.experience.total > 24) {
             this.addExperience(-25);
         }
@@ -843,6 +845,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public respawn() {
+        this.dead = false;
         this.characterSrc = environment.component + 'character/front.png';
         this.generateMap();
     }
