@@ -12,6 +12,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 import tests from '../shared/tests';
 import { Subject } from 'rxjs';
 import { Quest } from '../shared/types/quest.interface';
+import Quests from '../shared/quests/quests';
 
 @Component({
     selector: 'app-game',
@@ -49,7 +50,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keypress', ['$event'])
     handleKeys(event: KeyboardEvent): void {
-        console.log(event.key);
         if (this.commandLine.nativeElement !== document.activeElement && !this.dead) {
             if (event.key === 'w') {
                 this.world.player.rotation = 'back';
@@ -171,8 +171,6 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     questline$: Subject<{task: string, target: string}>;
-    currentQuest: Quest;
-
     lastCommand = '';
     currentCommand = '';
     env: any;
@@ -229,7 +227,8 @@ export class GameComponent implements OnInit, OnDestroy {
             },
             rotation: 'front'
         },
-        created: null
+        created: null,
+        currentQuest: null
     }
     cooldown: any;
     tiles = {};
@@ -321,7 +320,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         };
 
                         if(!despawned) {
-                            this.questline$.next({task: 'kill', target: entity.entity.name});
+                            this.questline$.next({task: 'kill', target: entity.name});
                         }
                     }
                 }, interval);
@@ -423,21 +422,21 @@ export class GameComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.questline$ = new Subject();
         this.subscription.questline = this.questline$.subscribe((questReport) => {
-            if(this.currentQuest) {
-                if(questReport.task === this.currentQuest.task && questReport.target === this.currentQuest.target) {
-                    this.currentQuest.current++;
+            if(this.world.currentQuest) {
+                if(questReport.task === this.world.currentQuest.task && questReport.target === this.world.currentQuest.target) {
+                    this.world.currentQuest.current++;
 
-                    if(this.currentQuest.current >= this.currentQuest.amount) {
-                        this.addExperience(this.currentQuest.reward.xp);
-                        //this.addGold(this.currentQuest.reward.gold);
-                        this.currentQuest = null;
+                    if(this.world.currentQuest.current >= this.world.currentQuest.amount) {
+                        this.addExperience(this.world.currentQuest.reward.xp);
+                        //this.addGold(this.world.currentQuest.reward.gold);
+                        this.world.currentQuest = null;
+                        this.log('Quest completed.')
                     }
                 }
             }
         });
 
-
-        this.env = environment;
+        this.env = environment;        
     }
 
     public submit() {
@@ -472,6 +471,7 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.relativePosY = 10;
             this.world.overrides = [];
             this.world.created = new Date();
+            this.world.currentQuest = null;
 
             this.generateMap();
             this.setDefaultCharacterStats();
@@ -633,6 +633,9 @@ export class GameComponent implements OnInit, OnDestroy {
                         break;
                     case 'statistics':
                         this.openStatistics();
+                        break;
+                    case 'quests':
+                        this.openQuests();
                         break;
                 }
             }
@@ -1160,6 +1163,14 @@ export class GameComponent implements OnInit, OnDestroy {
         this.subscription.map = dialogRef.afterClosed().subscribe();
     }
 
+    public openQuests(): void {
+        const dialogRef = this.dialog.open(Journal, {
+            data: this
+        });
+
+        this.subscription.quests = dialogRef.afterClosed().subscribe();
+    }
+
     public openStatistics(): void {
         const dialogRef = this.dialog.open(Statistics, {
             data: this
@@ -1176,11 +1187,11 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public acceptQuest(Quest) {
-        if(this.currentQuest !== null) {
+        if(this.world.currentQuest !== null) {
             this.log('You already have a quest.');
         } 
         else {
-            this.currentQuest = JSON.parse(JSON.stringify(Quest));
+            this.world.currentQuest = JSON.parse(JSON.stringify(Quest));
         }
     }
 
@@ -1315,5 +1326,46 @@ export class Statistics {
             default:
                 return n + 'th';
         }
+    }
+}
+
+@Component({
+    selector: 'journal',
+    template: `<h3>Journal</h3>
+    <div id="quests">
+        <div *ngIf="data.world.currentQuest; else journal">
+        <div>{{ data.world.currentQuest.text }}</div>
+        <div>{{ data.world.currentQuest.current }} / {{ data.world.currentQuest.amount }}</div>
+        </div>
+        <ng-template #journal>
+            <div>
+                <button type="button" (click)="getRandomQuest('easy')">⭐</button>
+                <button type="button" (click)="getRandomQuest('normal')">⭐⭐</button>
+                <button type="button" (click)="getRandomQuest('hard')">⭐⭐⭐</button>
+            </div>
+        </ng-template>
+    </div>`,
+styleUrls: ['./quests.scss']
+})
+export class Journal {
+    @ViewChild('mapCanvas', { static: true }) mapCanvas: ElementRef;
+    constructor(
+        public dialogRef: MatDialogRef<Map>,
+        @Inject(MAT_DIALOG_DATA) public data) { }
+
+    public getRandomQuest(difficulty) {
+        let questAmount = Quests[difficulty].length;
+        if(questAmount == 0) {
+            this.data.log('There are no quests in this difficulty available.')
+        }
+        else {
+            let q = Math.floor(Math.random() * questAmount);
+            this.data.acceptQuest(Quests[difficulty][q]);
+        }
+        
+    }
+
+    onNoClick(): void {
+        this.dialogRef.close();
     }
 }

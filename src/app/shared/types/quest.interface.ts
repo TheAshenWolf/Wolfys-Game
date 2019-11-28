@@ -6,5 +6,6 @@ export interface Quest {
     reward: {
         xp: number,
         gold: number
-    }
+    },
+    text: string
 }

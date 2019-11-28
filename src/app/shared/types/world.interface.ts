@@ -1,6 +1,7 @@
 import { Spell } from './spell.interface';
 import { Entity } from './entity.interface';
 import { Player } from './player.interface';
+import { Quest } from './quest.interface';
 
 export interface World {
     seed: null | number | string,
@@ -20,5 +21,6 @@ export interface World {
     spawnPointX: number,
     spawnPointY: number,
     player: Player,
-    created: Date
+    created: Date,
+    currentQuest: Quest
 }
