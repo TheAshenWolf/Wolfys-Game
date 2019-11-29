@@ -227,7 +227,12 @@ export class GameComponent implements OnInit, OnDestroy {
             },
             rotation: 'front'
         },
-        created: null,
+        statistics: {
+            created: null,
+            entities: 0,
+            herbs: 0,
+            quests: 0
+        },
         currentQuest: null
     }
     cooldown: any;
@@ -321,6 +326,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                         if(!despawned) {
                             this.questline$.next({task: 'kill', target: entity.name});
+                            this.world.statistics.entities++;
                         }
                     }
                 }, interval);
@@ -430,7 +436,8 @@ export class GameComponent implements OnInit, OnDestroy {
                         this.addExperience(this.world.currentQuest.reward.xp);
                         //this.addGold(this.world.currentQuest.reward.gold);
                         this.world.currentQuest = null;
-                        this.log('Quest completed.')
+                        this.log('Quest completed.');
+                        this.world.statistics.quests++;
                     }
                 }
             }
@@ -470,8 +477,13 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.relativePosX = 15;
             this.world.relativePosY = 10;
             this.world.overrides = [];
-            this.world.created = new Date();
             this.world.currentQuest = null;
+            this.world.statistics = {
+                created: new Date(),
+                entities: 0,
+                herbs: 0,
+                quests: 0
+            }
 
             this.generateMap();
             this.setDefaultCharacterStats();
@@ -724,6 +736,7 @@ export class GameComponent implements OnInit, OnDestroy {
                 }
                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
                 this.questline$.next({task: 'collect', target: tile});
+                this.world.statistics.herbs++;
                 this.addToInventory(tile);
                 this.addExperience(5);
             }
@@ -1286,7 +1299,10 @@ export class Map implements AfterViewInit {
     <div><span>Biome: </span>{{ data.world.tileset.biome }}</div>
     <div><span>Position: </span> <span>x:</span>{{ data.world.posX }}<span>y:</span>{{ data.world.posY }}</div>
     <div><span>Tileset: </span> <span>x:</span>{{ data.world.tileset.tilesetX }}<span>y:</span>{{ data.world.tileset.tilesetY }}</div>
-    <div><span>World created: </span> {{ getCreated() }}
+    <div><span>World created: </span> {{ getCreated() }}</div>
+    <div><span>Entities killed: </span> {{ data.world.statistics.entities }}</div>
+    <div><span>Herbs collected: </span> {{ data.world.statistics.herbs }}</div>
+    <div><span>Quests completed: </span> {{ data.world.statistics.quests }}</div>
 </div>`,
 styleUrls: ['./statistics.scss']
 })
@@ -1304,7 +1320,7 @@ export class Statistics {
         'April', 'May', 'June', 'July',
         'August', 'September', 'October',
         'November', 'December'];
-        let date = this.data.world.created;
+        let date = this.data.world.statistics.created;
         let createdAt = 
             this.number(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() +
             ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) + 

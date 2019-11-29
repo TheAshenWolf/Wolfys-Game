@@ -21,6 +21,11 @@ export interface World {
     spawnPointX: number,
     spawnPointY: number,
     player: Player,
-    created: Date,
-    currentQuest: Quest
+    currentQuest: Quest,
+    statistics: {
+        created: Date,
+        entities: number,
+        herbs: number,
+        quests: number
+    }
 }
