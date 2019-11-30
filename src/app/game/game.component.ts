@@ -51,7 +51,7 @@ export class GameComponent implements OnInit, OnDestroy {
     @HostListener('document:keypress', ['$event'])
     handleKeys(event: KeyboardEvent): void {
         if (this.commandLine.nativeElement !== document.activeElement && !this.dead) {
-            if (event.key === 'w') {
+            if (event.which === 87 || event.keyCode === 87 || event.which === 38 || event.keyCode === 38 || event.key === "w") { // W, arrowup
                 this.world.player.rotation = 'back';
                 this.characterSrc = environment.component + 'character/back.png';
                 let y = this.world.relativePosY <= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
@@ -70,7 +70,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 's') {
+            else if (event.which === 83 || event.keyCode === 83 || event.which === 40 || event.keyCode === 40 || event.key === "s") { //S, downarrow
                 this.world.player.rotation = 'front';
                 let y = this.world.relativePosY >= this.amountYTiles - 1 ? this.world.tileset.tilesetY + 1 : this.world.tileset.tilesetY;
                 this.characterSrc = environment.component + 'character/front.png';
@@ -89,7 +89,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 'a') {
+            else if (event.which === 65 || event.keyCode === 65 || event.which === 37 || event.keyCode === 37 || event.key === "a") { // A, leftarrow
                 this.world.player.rotation = 'left';
 
                 this.characterSrc = environment.component + 'character/left-' + (this.step ? '1.png' : '2.png');
@@ -110,7 +110,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 'd') {
+            else if (event.which === 68 || event.keyCode === 68 || event.which === 39 || event.keyCode === 39 || event.key === "d") { // D, rightarrow
                 this.world.player.rotation = 'right';
                 this.characterSrc = environment.component + 'character/right-' + (this.step ? '1.png' : '2.png');
                 this.step = !this.step;
@@ -520,6 +520,7 @@ export class GameComponent implements OnInit, OnDestroy {
         try {
             this.world = JSON.parse(str.trim());
             this.world.tileset.spells = [];
+            console.log(this.world);
             this.setCharacterPos();
             this.generateMap();
             this.loadingWorld = false;
@@ -865,6 +866,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public death() {
         this.dead = true;
+        this.clearEntities();
         if (this.world.player.stats.experience.total > 24) {
             this.addExperience(-25);
         }
@@ -1208,6 +1210,18 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
+    private clearEntities() {
+        this.world.tileset.entities.forEach(entity => {
+            clearInterval(entity.life);
+            entity.position = {
+                position: 'absolute',
+                left: '0px',
+                top: '0px',
+                display: 'none'
+            };
+        });
+        this.world.tileset.entities = [];
+    }
 
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
