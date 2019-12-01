@@ -11,7 +11,6 @@ import Entities from '../shared/entities/entities';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import tests from '../shared/tests';
 import { Subject } from 'rxjs';
-import { Quest } from '../shared/types/quest.interface';
 import Quests from '../shared/quests/quests';
 
 @Component({
@@ -170,6 +169,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
+    cipher: string = `,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:`; //,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:
     questline$: Subject<{task: string, target: string}>;
     lastCommand = '';
     currentCommand = '';
@@ -451,6 +451,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public startWorldCreation() {
+        this.loadingWorld = false;
         if (!this.creatingWorld) {
             this.log('Please, write in the world name and the seed. The seed may be empty for a random one.');
             this.log('Example: [name] [seed]');
@@ -501,8 +502,16 @@ export class GameComponent implements OnInit, OnDestroy {
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if (this.world.seed) {
+            let save = JSON.stringify(this.world);
+            let encrypted = '';
+            (save.split('')).forEach(item => {
+                encrypted += this.cipher[this.cipher.indexOf(item) + 6];
+            });
+
             //this.clearMemory();
-            this.log(JSON.stringify(this.world));
+            this.log('---------------^^^----------------');
+            this.log(encrypted);
+            this.log('---------------vvv----------------');
             this.log('Please, save this somewhere:');
         }
         else {
@@ -511,25 +520,30 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public startWorldLoading() {
+        this.creatingWorld = false;
         this.log('Please, paste your saved link and hit run.');
         this.loadingWorld = true;
     }
 
     public loadWorld(str) {
         this.log('Loading world...');
-        try {
-            this.world = JSON.parse(str.trim());
+        //try {
+            let save = '';
+            str.trim().split('').forEach(item => {
+                save += this.cipher[this.cipher.lastIndexOf(item) - 6];
+            });
+            this.world = JSON.parse(save);
             this.world.tileset.spells = [];
-            console.log(this.world);
+            this.world.statistics.created = new Date(this.world.statistics.created);
             this.setCharacterPos();
             this.generateMap();
             this.loadingWorld = false;
             this.log('World loaded.');
-        }
-        catch {
+        //}
+        //catch {;
             this.loadingWorld = false;
             this.log('World could not be loaded.');
-        }
+        //}
     }
 
     public command(argstr: string): void {
@@ -1336,26 +1350,11 @@ export class Statistics {
         'November', 'December'];
         let date = this.data.world.statistics.created;
         let createdAt = 
-            this.number(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() +
+            date.getDate() + '. ' + months[date.getMonth()] + ' ' + date.getFullYear() +
             ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) + 
             ':' + (date.getMinutes() >= 10 ? date.getMinutes() : '0' + date.getMinutes()) + 
             ':' + (date.getSeconds() >= 10 ? date.getSeconds() : '0' + date.getSeconds());
         return createdAt;
-    }
-
-    public number(n) {
-        switch(n) {
-            case (n > 10 && n < 20):
-                return n + 'th';
-            case n % 10 == 1:
-                return n + 'st';
-            case n % 10 == 2:
-                return n + 'nd';
-            case n % 10 == 3:
-                return n + 'rd';
-            default:
-                return n + 'th';
-        }
     }
 }
 
