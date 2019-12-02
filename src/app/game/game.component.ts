@@ -10,6 +10,8 @@ import { Tile } from '../shared/types/tile.interface';
 import Entities from '../shared/entities/entities';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import tests from '../shared/tests';
+import { Subject } from 'rxjs';
+import Quests from '../shared/quests/quests';
 
 @Component({
     selector: 'app-game',
@@ -47,9 +49,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keypress', ['$event'])
     handleKeys(event: KeyboardEvent): void {
-        console.log(event.key);
         if (this.commandLine.nativeElement !== document.activeElement && !this.dead) {
-            if (event.key === 'w') {
+            if (event.which === 87 || event.keyCode === 87 || event.which === 38 || event.keyCode === 38 || event.key === "w") { // W, arrowup
                 this.world.player.rotation = 'back';
                 this.characterSrc = environment.component + 'character/back.png';
                 let y = this.world.relativePosY <= 0 ? this.world.tileset.tilesetY - 1 : this.world.tileset.tilesetY;
@@ -68,7 +69,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 's') {
+            else if (event.which === 83 || event.keyCode === 83 || event.which === 40 || event.keyCode === 40 || event.key === "s") { //S, downarrow
                 this.world.player.rotation = 'front';
                 let y = this.world.relativePosY >= this.amountYTiles - 1 ? this.world.tileset.tilesetY + 1 : this.world.tileset.tilesetY;
                 this.characterSrc = environment.component + 'character/front.png';
@@ -87,7 +88,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 'a') {
+            else if (event.which === 65 || event.keyCode === 65 || event.which === 37 || event.keyCode === 37 || event.key === "a") { // A, leftarrow
                 this.world.player.rotation = 'left';
 
                 this.characterSrc = environment.component + 'character/left-' + (this.step ? '1.png' : '2.png');
@@ -108,7 +109,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            else if (event.key === 'd') {
+            else if (event.which === 68 || event.keyCode === 68 || event.which === 39 || event.keyCode === 39 || event.key === "d") { // D, rightarrow
                 this.world.player.rotation = 'right';
                 this.characterSrc = environment.component + 'character/right-' + (this.step ? '1.png' : '2.png');
                 this.step = !this.step;
@@ -168,6 +169,8 @@ export class GameComponent implements OnInit, OnDestroy {
         }
     }
 
+    cipher: string = `,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:`; //,j'F]8CSaVd.YP-UMe}zrqnIgOy7fG%KHuJxhBt/(i9Zm4EDR0;3w6"Xvs5AoQ1lNTc) W2kp[bL{:
+    questline$: Subject<{task: string, target: string}>;
     lastCommand = '';
     currentCommand = '';
     env: any;
@@ -224,7 +227,13 @@ export class GameComponent implements OnInit, OnDestroy {
             },
             rotation: 'front'
         },
-        created: null
+        statistics: {
+            created: null,
+            entities: 0,
+            herbs: 0,
+            quests: 0
+        },
+        currentQuest: null
     }
     cooldown: any;
     tiles = {};
@@ -242,6 +251,7 @@ export class GameComponent implements OnInit, OnDestroy {
         shy: (entity, index) => {
             let interval = 1500;
             let direction = { x: 0, y: 0 };
+            let despawned = false;
             this.world.tileset.entities[index].life = setInterval(
                 () => {
                     if (this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y)<= entity.visionRadius) {
@@ -280,6 +290,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (tries >= 8) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         entity.x += direction.x;
@@ -291,6 +302,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
@@ -311,6 +323,11 @@ export class GameComponent implements OnInit, OnDestroy {
                             top: '0px',
                             display: 'none'
                         };
+
+                        if(!despawned) {
+                            this.questline$.next({task: 'kill', target: entity.name});
+                            this.world.statistics.entities++;
+                        }
                     }
                 }, interval);
 
@@ -409,7 +426,24 @@ export class GameComponent implements OnInit, OnDestroy {
     constructor(public dialog: MatDialog) { }
 
     ngOnInit(): void {
-        this.env = environment;
+        this.questline$ = new Subject();
+        this.subscription.questline = this.questline$.subscribe((questReport) => {
+            if(this.world.currentQuest) {
+                if(questReport.task === this.world.currentQuest.task && questReport.target === this.world.currentQuest.target) {
+                    this.world.currentQuest.current++;
+
+                    if(this.world.currentQuest.current >= this.world.currentQuest.amount) {
+                        this.addExperience(this.world.currentQuest.reward.xp);
+                        //this.addGold(this.world.currentQuest.reward.gold);
+                        this.world.currentQuest = null;
+                        this.log('Quest completed.');
+                        this.world.statistics.quests++;
+                    }
+                }
+            }
+        });
+
+        this.env = environment;        
     }
 
     public submit() {
@@ -417,6 +451,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public startWorldCreation() {
+        this.loadingWorld = false;
         if (!this.creatingWorld) {
             this.log('Please, write in the world name and the seed. The seed may be empty for a random one.');
             this.log('Example: [name] [seed]');
@@ -443,7 +478,13 @@ export class GameComponent implements OnInit, OnDestroy {
             this.world.relativePosX = 15;
             this.world.relativePosY = 10;
             this.world.overrides = [];
-            this.world.created = new Date();
+            this.world.currentQuest = null;
+            this.world.statistics = {
+                created: new Date(),
+                entities: 0,
+                herbs: 0,
+                quests: 0
+            }
 
             this.generateMap();
             this.setDefaultCharacterStats();
@@ -461,8 +502,16 @@ export class GameComponent implements OnInit, OnDestroy {
     public saveWorld() {
         //fs.writeFileSync(environment.component + '' + this.world.name + '.json', JSON.stringify(this.world));
         if (this.world.seed) {
+            let save = JSON.stringify(this.world);
+            let encrypted = '';
+            (save.split('')).forEach(item => {
+                encrypted += this.cipher[this.cipher.indexOf(item) + 6];
+            });
+
             //this.clearMemory();
-            this.log(JSON.stringify(this.world));
+            this.log('---------------^^^----------------');
+            this.log(encrypted);
+            this.log('---------------vvv----------------');
             this.log('Please, save this somewhere:');
         }
         else {
@@ -471,24 +520,30 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     public startWorldLoading() {
+        this.creatingWorld = false;
         this.log('Please, paste your saved link and hit run.');
         this.loadingWorld = true;
     }
 
     public loadWorld(str) {
         this.log('Loading world...');
-        try {
-            this.world = JSON.parse(str.trim());
+        //try {
+            let save = '';
+            str.trim().split('').forEach(item => {
+                save += this.cipher[this.cipher.lastIndexOf(item) - 6];
+            });
+            this.world = JSON.parse(save);
             this.world.tileset.spells = [];
+            this.world.statistics.created = new Date(this.world.statistics.created);
             this.setCharacterPos();
             this.generateMap();
             this.loadingWorld = false;
             this.log('World loaded.');
-        }
-        catch {
+        //}
+        //catch {;
             this.loadingWorld = false;
             this.log('World could not be loaded.');
-        }
+        //}
     }
 
     public command(argstr: string): void {
@@ -606,6 +661,9 @@ export class GameComponent implements OnInit, OnDestroy {
                     case 'statistics':
                         this.openStatistics();
                         break;
+                    case 'quests':
+                        this.openQuests();
+                        break;
                 }
             }
         }
@@ -681,7 +739,7 @@ export class GameComponent implements OnInit, OnDestroy {
         let x = this.world.relativePosX;
         let y = this.world.relativePosY;
 
-        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()]) {
+        if (this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x][y]) {
             return null;
         }
         else {
@@ -692,6 +750,8 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()] = {};
                 }
                 this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][x.toString()][y.toString()] = { tile: 'herbCollected', safe: true };
+                this.questline$.next({task: 'collect', target: tile});
+                this.world.statistics.herbs++;
                 this.addToInventory(tile);
                 this.addExperience(5);
             }
@@ -820,6 +880,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     public death() {
         this.dead = true;
+        this.clearEntities();
         if (this.world.player.stats.experience.total > 24) {
             this.addExperience(-25);
         }
@@ -951,12 +1012,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     coordY = spellPosY * this.tileSizePixels;
                     let num = (this.pattern.noise2D(spellPosX + this.amountXTiles * this.world.tileset.tilesetX, spellPosY + this.amountYTiles * this.world.tileset.tilesetY) + 1) / 2;
                     let safeTile;
-                    /*if (this.world.overrides[this.world.tileset.tilesetX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX] && this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY]) {
-                        safeTile = this.world.overrides[this.world.tileset.tilesetX][this.world.tileset.tilesetY][spellPosX][spellPosY].safe;
-                    }
-                    else {*/
                     safeTile = this.getTile(this.toGlobalX(spellPosX), this.toGlobalY(spellPosY)).safe;
-                    //}
                     let entityHit = false;
 
                     for (let i = 0, j = this.world.tileset.entities.length; i < j; i++) {
@@ -1136,6 +1192,14 @@ export class GameComponent implements OnInit, OnDestroy {
         this.subscription.map = dialogRef.afterClosed().subscribe();
     }
 
+    public openQuests(): void {
+        const dialogRef = this.dialog.open(Journal, {
+            data: this
+        });
+
+        this.subscription.quests = dialogRef.afterClosed().subscribe();
+    }
+
     public openStatistics(): void {
         const dialogRef = this.dialog.open(Statistics, {
             data: this
@@ -1151,15 +1215,36 @@ export class GameComponent implements OnInit, OnDestroy {
         });
     }
 
+    public acceptQuest(Quest) {
+        if(this.world.currentQuest !== null) {
+            this.log('You already have a quest.');
+        } 
+        else {
+            this.world.currentQuest = JSON.parse(JSON.stringify(Quest));
+        }
+    }
+
+    private clearEntities() {
+        this.world.tileset.entities.forEach(entity => {
+            clearInterval(entity.life);
+            entity.position = {
+                position: 'absolute',
+                left: '0px',
+                top: '0px',
+                display: 'none'
+            };
+        });
+        this.world.tileset.entities = [];
+    }
+
     ngOnDestroy(): void {
         SOM.clearSubscriptionsObject(this.subscription);
     }
 }
 
-
-
-
-
+// ==========================================================================================================================================================================
+// ==========================================================================================================================================================================
+// ==========================================================================================================================================================================
 
 @Component({
     selector: 'inventory',
@@ -1242,7 +1327,10 @@ export class Map implements AfterViewInit {
     <div><span>Biome: </span>{{ data.world.tileset.biome }}</div>
     <div><span>Position: </span> <span>x:</span>{{ data.world.posX }}<span>y:</span>{{ data.world.posY }}</div>
     <div><span>Tileset: </span> <span>x:</span>{{ data.world.tileset.tilesetX }}<span>y:</span>{{ data.world.tileset.tilesetY }}</div>
-    <div><span>World created: </span> {{ getCreated() }}
+    <div><span>World created: </span> {{ getCreated() }}</div>
+    <div><span>Entities killed: </span> {{ data.world.statistics.entities }}</div>
+    <div><span>Herbs collected: </span> {{ data.world.statistics.herbs }}</div>
+    <div><span>Quests completed: </span> {{ data.world.statistics.quests }}</div>
 </div>`,
 styleUrls: ['./statistics.scss']
 })
@@ -1260,27 +1348,53 @@ export class Statistics {
         'April', 'May', 'June', 'July',
         'August', 'September', 'October',
         'November', 'December'];
-        let date = this.data.world.created;
+        let date = this.data.world.statistics.created;
         let createdAt = 
-            this.number(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() +
+            date.getDate() + '. ' + months[date.getMonth()] + ' ' + date.getFullYear() +
             ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) + 
             ':' + (date.getMinutes() >= 10 ? date.getMinutes() : '0' + date.getMinutes()) + 
             ':' + (date.getSeconds() >= 10 ? date.getSeconds() : '0' + date.getSeconds());
         return createdAt;
     }
+}
 
-    public number(n) {
-        switch(n) {
-            case (n > 10 && n < 20):
-                return n + 'th';
-            case n % 10 == 1:
-                return n + 'st';
-            case n % 10 == 2:
-                return n + 'nd';
-            case n % 10 == 3:
-                return n + 'rd';
-            default:
-                return n + 'th';
+@Component({
+    selector: 'journal',
+    template: `<h3>Journal</h3>
+    <div id="quests">
+        <div *ngIf="data.world.currentQuest; else journal">
+        <div>{{ data.world.currentQuest.text }}</div>
+        <div>{{ data.world.currentQuest.current }} / {{ data.world.currentQuest.amount }}</div>
+        </div>
+        <ng-template #journal>
+            <div>
+                <button type="button" (click)="getRandomQuest('easy')">⭐</button>
+                <button type="button" (click)="getRandomQuest('normal')">⭐⭐</button>
+                <button type="button" (click)="getRandomQuest('hard')">⭐⭐⭐</button>
+            </div>
+        </ng-template>
+    </div>`,
+styleUrls: ['./quests.scss']
+})
+export class Journal {
+    @ViewChild('mapCanvas', { static: true }) mapCanvas: ElementRef;
+    constructor(
+        public dialogRef: MatDialogRef<Map>,
+        @Inject(MAT_DIALOG_DATA) public data) { }
+
+    public getRandomQuest(difficulty) {
+        let questAmount = Quests[difficulty].length;
+        if(questAmount == 0) {
+            this.data.log('There are no quests in this difficulty available.')
         }
+        else {
+            let q = Math.floor(Math.random() * questAmount);
+            this.data.acceptQuest(Quests[difficulty][q]);
+        }
+        
+    }
+
+    onNoClick(): void {
+        this.dialogRef.close();
     }
 }
