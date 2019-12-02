@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { GameComponent, Inventory, Map, Statistics } from './game/game.component';
+import { GameComponent, Inventory, Map, Statistics, Journal } from './game/game.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -13,7 +13,8 @@ import {MatDialogModule} from '@angular/material/dialog';
         GameComponent,
         Inventory,
         Map,
-        Statistics
+        Statistics,
+        Journal
     ],
     imports: [
         BrowserModule,
@@ -29,7 +30,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     entryComponents: [
         Inventory,
         Map,
-        Statistics
+        Statistics,
+        Journal
     ]
 })
 export class AppModule { }

@@ -37,15 +37,17 @@
         </div>
         <div class="border">
             <div *ngIf="world.seed; else lockedIcons" id="icons">
-                <img [src]="env.component + 'ui/icon-inventory.png'" alt="inventory" (click)="openInventory()" />
-                <img [src]="env.component + 'ui/icon-map.png'" alt="map" (click)="openMap()" />
-                <img [src]="env.component + 'ui/icon-statistics.png'" alt="statistics" (click)="openStatistics()" />
+                <img [src]="env.component + 'ui/icon-inventory.png'" alt="inventory" title="inventory" (click)="openInventory()" />
+                <img [src]="env.component + 'ui/icon-map.png'" alt="map" title="map" (click)="openMap()" />
+                <img [src]="env.component + 'ui/icon-statistics.png'" alt="statistics" title="statistics" (click)="openStatistics()" />
+                <img [src]="env.component + 'ui/icon-quests.png'" alt="quests" title="quests" (click)="openQuests()" />
             </div>
             <ng-template #lockedIcons>
                 <div id="icons">
-                    <img [src]="env.component + 'ui/locked-inventory.png'" alt="inventory" />
-                    <img [src]="env.component + 'ui/locked-map.png'" alt="map" />
-                    <img [src]="env.component + 'ui/locked-statistics.png'" alt="statistics" />
+                    <img [src]="env.component + 'ui/locked-inventory.png'" alt="inventory" title="inventory"/>
+                    <img [src]="env.component + 'ui/locked-map.png'" alt="map" title="map"/>
+                    <img [src]="env.component + 'ui/locked-statistics.png'" alt="statistics" title="statistics"/>
+                    <img [src]="env.component + 'ui/locked-quests.png'" alt="quests" title="quests"/>
                 </div>
             </ng-template>
         </div>
