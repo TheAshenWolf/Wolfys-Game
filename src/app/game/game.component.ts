@@ -341,6 +341,7 @@ export class GameComponent implements OnInit, OnDestroy {
         aggressive: (entity, index) => {
             let interval = 1500;
             let direction = { x: 0, y: 0 };
+            let despawned = false;
             this.world.tileset.entities[index].life = setInterval(
                 () => {
                     let dist = this.distance(this.world.relativePosX, this.world.relativePosY, entity.x, entity.y);
@@ -360,7 +361,7 @@ export class GameComponent implements OnInit, OnDestroy {
                             entity.rotation = 'front';
                         }
                     }
-                    
+
                     else if(dist <= 2) {
                         direction = {x: 0, y: 0};
                         this.addHealth(-entity.damage);
@@ -386,6 +387,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (tries >= 8) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         entity.x += direction.x;
@@ -397,6 +399,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
                     if (entity.x < 0 || entity.y < 0 || entity.x >= this.amountXTiles || entity.y >= this.amountYTiles) {
                         entity.health = 0;
+                        despawned = true;
                     }
                     else {
                         this.world.tileset.entities[index].src = entity.src + entity.rotation + entity.fileType;
@@ -417,7 +420,14 @@ export class GameComponent implements OnInit, OnDestroy {
                             top: '0px',
                             display: 'none'
                         };
+
+                        if(!despawned) {
+                          this.questline$.next({task: 'kill', target: entity.name});
+                          this.world.statistics.entities++;
+                        }
                     }
+
+
                 }, interval);
 
         }
@@ -431,7 +441,7 @@ export class GameComponent implements OnInit, OnDestroy {
             if(this.world.currentQuest) {
                 if(questReport.task === this.world.currentQuest.task && questReport.target === this.world.currentQuest.target) {
                     this.world.currentQuest.current++;
-
+                    console.log(this.world.currentQuest);
                     if(this.world.currentQuest.current >= this.world.currentQuest.amount) {
                         this.addExperience(this.world.currentQuest.reward.xp);
                         //this.addGold(this.world.currentQuest.reward.gold);
@@ -443,7 +453,7 @@ export class GameComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.env = environment;        
+        this.env = environment;
     }
 
     public submit() {
@@ -572,7 +582,7 @@ export class GameComponent implements OnInit, OnDestroy {
                         }
                         catch {
                             this.log('This won\'t work.');
-                        }   
+                        }
                         break;
                     case 'givexp':
                         this.addExperience(+args[1] || 0);
@@ -717,7 +727,7 @@ export class GameComponent implements OnInit, OnDestroy {
                     this.spawnEntity(Entities[entity.entity], this.entityBehavior[entity.behavior]);
                 }
             }
-            
+
         });
         for (let x = 0; x < this.amountXTiles; x++) {
             for (let y = 0; y < this.amountYTiles; y++) {
@@ -1218,7 +1228,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public acceptQuest(Quest) {
         if(this.world.currentQuest !== null) {
             this.log('You already have a quest.');
-        } 
+        }
         else {
             this.world.currentQuest = JSON.parse(JSON.stringify(Quest));
         }
@@ -1349,10 +1359,10 @@ export class Statistics {
         'August', 'September', 'October',
         'November', 'December'];
         let date = this.data.world.statistics.created;
-        let createdAt = 
+        let createdAt =
             date.getDate() + '. ' + months[date.getMonth()] + ' ' + date.getFullYear() +
-            ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) + 
-            ':' + (date.getMinutes() >= 10 ? date.getMinutes() : '0' + date.getMinutes()) + 
+            ', ' + (date.getHours() >= 10 ? date.getHours() : '0' + date.getHours()) +
+            ':' + (date.getMinutes() >= 10 ? date.getMinutes() : '0' + date.getMinutes()) +
             ':' + (date.getSeconds() >= 10 ? date.getSeconds() : '0' + date.getSeconds());
         return createdAt;
     }
@@ -1391,7 +1401,7 @@ export class Journal {
             let q = Math.floor(Math.random() * questAmount);
             this.data.acceptQuest(Quests[difficulty][q]);
         }
-        
+
     }
 
     onNoClick(): void {
